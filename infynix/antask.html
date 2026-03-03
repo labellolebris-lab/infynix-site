@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>TaskSchool</title>
+    <style>
+        :root { --bg: #ffffff; --text: #1d1d1f; --accent: #0071e3; --border: #d2d2d7; --gray: #f5f5f7; }
+        * { margin: 0; padding: 0; box-sizing: border-box; border-radius: 0 !important; font-family: -apple-system, sans-serif; }
+        
+        body { background: var(--bg); color: var(--text); padding-bottom: 100px; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 60px 20px; }
+
+        /* ENTÊTE */
+        header { margin-bottom: 60px; border-bottom: 1px solid var(--border); padding-bottom: 40px; }
+        a.back-link { color: var(--accent); text-decoration: none; font-size: 14px; font-weight: 500; display: block; margin-bottom: 30px; }
+        h1 { font-size: 72px; font-weight: 700; letter-spacing: -4px; margin-bottom: 20px; }
+        p.intro { font-size: 24px; color: #86868b; line-height: 1.4; max-width: 800px; }
+
+        /* SLIDER GRAND FORMAT (6 SEC) */
+        .slider-wrapper {
+            width: 100%;
+            height: 600px;
+            background: #000;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 60px;
+            border: 1px solid var(--border);
+        }
+        .slide {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            opacity: 0;
+            transition: opacity 1.2s ease-in-out;
+            background-size: cover;
+            background-position: center;
+        }
+        .slide.active { opacity: 1; }
+        .slide-overlay { 
+            background: linear-gradient(transparent, rgba(0,0,0,0.8)); 
+            width: 100%; height: 100%; 
+            display: flex; align-items: flex-end; padding: 60px; 
+            color: white;
+        }
+        .slide-overlay h3 { font-size: 42px; font-weight: 700; letter-spacing: -1px; }
+
+        /* COMPTE À REBOURS */
+        .countdown-container {
+            margin: 60px 0;
+            text-align: center;
+        }
+        .countdown-label {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            color: #86868b;
+        }
+        .timer-grid {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        .timer-box {
+            background: var(--gray);
+            border: 1px solid var(--border);
+            width: 120px;
+            padding: 30px 0;
+        }
+        .timer-num {
+            display: block;
+            font-size: 42px;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .timer-unit {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #86868b;
+            font-weight: 600;
+            margin-top: 5px;
+            display: block;
+        }
+
+        /* BOUTON DOWNLOAD */
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 30px;
+            padding: 16px 36px;
+            font-size: 16px;
+            font-weight: 600;
+            background: var(--accent);
+            color: white;
+            border: none;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+        .download-btn.disabled {
+            background: #d2d2d7;
+            color: #86868b;
+            cursor: not-allowed;
+        }
+        .download-btn:not(.disabled):hover { opacity: 0.85; cursor: pointer; }
+
+        /* DESCRIPTIONS */
+        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 60px; }
+        .detail-item { padding-top: 30px; border-top: 1px solid var(--border); }
+        .detail-item h2 { font-size: 28px; font-weight: 600; margin-bottom: 15px; }
+        .detail-item p { color: #86868b; line-height: 1.6; font-size: 17px; }
+
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <a href="index.html" class="back-link">← Back to Home</a>
+            <h1>Cool. Intuitive. TaskSchool.</h1>
+            <p class="intro">New features are coming. Get ready for a completely reinvented school experience.</p>
+        </header>
+
+        <div class="slider-wrapper">
+            <div class="slide active" style="background-image: url('taskschool1.jpg');">
+                <div class="slide-overlay"><h3>New notebook available now</h3></div>
+            </div>
+            <div class="slide" style="background-image: url('taskschool2.jpg');">
+                <div class="slide-overlay"><h3>Import file from your PC</h3></div>
+            </div>
+            <div class="slide" style="background-image: url('taskschool3.jpg');">
+                <div class="slide-overlay"><h3>Everything in an intuitive menu</h3></div>
+            </div>
+        </div>
+
+        <div class="countdown-container">
+            <div class="countdown-label"> The last Update release: March 4, 2026</div>
+            <div class="timer-grid">
+                <div class="timer-box"><span class="timer-num" id="d">00</span><span class="timer-unit">Day</span></div>
+                <div class="timer-box"><span class="timer-num" id="h">00</span><span class="timer-unit">hours</span></div>
+                <div class="timer-box"><span class="timer-num" id="m">00</span><span class="timer-unit">Min</span></div>
+                <div class="timer-box"><span class="timer-num" id="s">00</span><span class="timer-unit">Sec</span></div>
+            </div>
+            <a id="downloadBtn" class="download-btn disabled" href="TaskSetup.exe" download="TaskSetup.exe">
+                <i class="fas fa-download"></i> Download
+            </a>
+        </div>
+
+        <div class="details-grid">
+            <div class="detail-item">
+                <h2>Maximum Productivity</h2>
+                <p>TaskSchool now centralizes all your note-taking and project management tools to avoid any unnecessary distractions during your study sessions.</p>
+            </div>
+            <div class="detail-item">
+                <h2>Infynix Ecosystem</h2>
+                <p>Thanks to the synergy with R&R OS, enjoy instant synchronization of your data across all your Infynix devices (R&R OS Altos is not yet available for download).</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Bloquer le clic si désactivé
+        document.getElementById("downloadBtn").addEventListener("click", function(e) {
+            if (this.classList.contains("disabled")) e.preventDefault();
+        });
+
+        // LOGIQUE DU SLIDER AUTOMATIQUE (6 SECONDES)
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        function nextSlide() {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }
+        setInterval(nextSlide, 6000);
+
+        // LOGIQUE DU TIMER
+        const targetDate = new Date("March 4, 2026 19:00:00").getTime();
+        function updateTimer() {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById("d").innerText = days < 10 ? "0"+days : days;
+            document.getElementById("h").innerText = hours < 10 ? "0"+hours : hours;
+            document.getElementById("m").innerText = minutes < 10 ? "0"+minutes : minutes;
+            document.getElementById("s").innerText = seconds < 10 ? "0"+seconds : seconds;
+            
+            if (distance < 0) {
+                document.querySelector(".timer-grid").innerHTML = "UPDATE DISPONIBLE";
+                const btn = document.getElementById("downloadBtn");
+                btn.classList.remove("disabled");
+            }
+        }
+        setInterval(updateTimer, 1000);
+        updateTimer();
+    </script>
+</body>
+</html>

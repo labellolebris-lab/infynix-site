@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pen CS | Infynix Productivity</title>
+    <style>
+        :root { --bg: #ffffff; --text: #1d1d1f; --accent: #0071e3; --border: #d2d2d7; --gray: #f5f5f7; }
+        * { margin: 0; padding: 0; box-sizing: border-box; border-radius: 0 !important; font-family: -apple-system, sans-serif; }
+        body { background: var(--bg); color: var(--text); line-height: 1.5; }
+        
+        nav { padding: 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; }
+        .back-link { text-decoration: none; color: var(--accent); font-weight: 500; font-size: 14px; }
+
+        .hero { max-width: 980px; margin: 80px auto; padding: 0 20px; text-align: center; }
+        h1 { font-size: 72px; font-weight: 700; letter-spacing: -3px; margin-bottom: 20px; }
+        .tagline { font-size: 24px; color: #86868b; margin-bottom: 50px; }
+
+        .feature-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px; max-width: 980px; margin: 0 auto 100px; padding: 0 20px; }
+        .feature-card { padding: 40px; background: var(--gray); border: 1px solid var(--border); }
+        .feature-card h3 { font-size: 24px; margin-bottom: 15px; }
+        .feature-card p { color: #86868b; }
+
+        .cta-section { background: #000; color: #fff; padding: 100px 20px; text-align: center; }
+        .btn-dl { display: inline-block; background: #fff; color: #000; padding: 20px 50px; text-decoration: none; font-weight: 700; font-size: 18px; margin-top: 30px; }
+    </style>
+</head>
+<body>
+    <nav>
+        <div style="max-width:980px; margin:0 auto; width:100%;">
+            <a href="index.html#cs" class="back-link">← Back to Suite CS</a>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <h1>Pen CS.</h1>
+        <p class="tagline">Experience ultra-fluid word processing designed for focus and creativity.</p>
+        <img src="pencs-preview.jpg" alt="Pen CS Preview" style="width:100%; border: 1px solid var(--border); background: #eee; aspect-ratio: 16/9; object-fit: cover;">
+    </div>
+
+    <div class="feature-grid">
+        <div class="feature-card">
+            <h3>Distraction-Free</h3>
+            <p>A clean interface that stays out of your way, letting your ideas flow directly onto the digital page.</p>
+        </div>
+        <div class="feature-card">
+            <h3>Native Speed</h3>
+            <p>Built for Altos OS, Pen CS handles massive documents with zero lag and instant saving.</p>
+        </div>
+    </div>
+
+    <div class="cta-section">
+        <h2>Write the future.</h2>
+        <p>Pen CS is included with the Altos Productivity Pack.</p>
+        <a href="https://github.com/infynixOfficial/PenCS" target="_blank" class="btn-dl">View on GitHub</a>
+    </div>
+</body>
+</html>

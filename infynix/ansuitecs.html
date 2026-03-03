@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CS Suite Details | Infynix</title>
+    <style>
+        /* BASE STYLES */
+        * { margin: 0; padding: 0; box-sizing: border-box; border-radius: 0 !important; font-family: -apple-system, sans-serif; }
+        body { background: #fff; padding: 60px 20px; color: #1d1d1f; }
+        .container { max-width: 900px; margin: 0 auto; }
+        
+        /* TYPOGRAPHY */
+        a.back { color: #0071e3; text-decoration: none; font-size: 14px; display: inline-block; margin-bottom: 20px;}
+        h1 { font-size: 48px; margin: 20px 0; letter-spacing: -1px; }
+        .text-content { font-size: 20px; line-height: 1.6; color: #444; margin-bottom: 50px; }
+
+        /* SLIDER WRAPPER */
+        .slider-wrapper {
+            width: 100%;
+            height: 550px;
+            background: #000;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 60px;
+            border: 1px solid #ddd;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            opacity: 0;
+            transition: opacity 1.2s ease-in-out;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .slide.active { opacity: 1; }
+
+        /* CAPTION STYLE WITH GRADIENT FOR BETTER VISIBILITY */
+        .caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            /* Dégradé de transparent vers noir pour faire ressortir le texte */
+            background: linear-gradient(transparent, rgba(0,0,0,0.8)); 
+            padding: 80px 40px 40px 40px; /* Plus d'espace en bas */
+            color: white;
+            font-size: 42px;
+            font-weight: 400;
+            text-shadow: 2px 2px 15px rgba(0,0,0,0.5);
+            pointer-events: none;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back">← Back to home</a>
+        <h1>The CS Suite in Detail</h1>
+        
+        <div class="text-content">
+            <p>The CS Suite is designed to offer a powerful open-source alternative to proprietary tools. Each software is optimized to consume minimal resources while offering professional features.</p>
+        </div>
+
+        <div class="slider-wrapper">
+            <div class="slide active" style="background-image: url('cs_preview1.jpg');">
+                <div class="caption">Save on your PC</div>
+            </div>
+            
+            <div class="slide" style="background-image: url('cs_preview2.jpg');">
+                <div class="caption">Many new fonts</div>
+            </div>
+            
+            <div class="slide" style="background-image: url('cs_preview3.jpg');">
+                <div class="caption">A simple login menu</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // SLIDER LOGIC
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        
+        function nextSlide() {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }
+        
+        setInterval(nextSlide, 6000);
+
+        // CONSOLE EASTER EGG
+        window.hehe = function() {
+            try {
+                const audio = new Audio('song.mp3');
+                audio.play();
+                console.log("🎵 Playing song.mp3...");
+            } catch (e) {
+                console.error("Audio error:", e);
+            }
+        };
+
+        console.log("Ready. Type hehe() to play music.");
+    </script>
+</body>
+</html>

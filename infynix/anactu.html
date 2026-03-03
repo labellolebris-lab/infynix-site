@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Infynix News</title>
+    <style>
+        :root { --bg: #ffffff; --text: #1d1d1f; --accent: #0071e3; --border: #d2d2d7; --gray: #f5f5f7; }
+        * { margin: 0; padding: 0; box-sizing: border-box; border-radius: 0 !important; font-family: -apple-system, sans-serif; }
+        
+        body { background: var(--bg); color: var(--text); padding-bottom: 100px; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
+        
+        a.back { color: var(--accent); text-decoration: none; font-size: 14px; font-weight: 500; display: block; margin-bottom: 30px; }
+        h1 { font-size: 56px; font-weight: 700; letter-spacing: -2px; margin-bottom: 40px; }
+
+        /* SLIDER D'IMAGES (6 SECONDES) */
+        .slider-container {
+            width: 100%;
+            height: 500px;
+            background: #eee;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 60px;
+            border: 1px solid var(--border);
+        }
+        .slide {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            opacity: 0;
+            transition: opacity 1.2s ease-in-out;
+            background-size: cover;
+            background-position: center;
+        }
+        .slide.active { opacity: 1; }
+        .slide-overlay { 
+            background: linear-gradient(transparent, rgba(0,0,0,0.8)); 
+            width: 100%; height: 100%; 
+            display: flex; align-items: flex-end; padding: 50px; 
+            color: white;
+        }
+        .slide-overlay h3 { font-size: 32px; font-weight: 600; }
+
+        /* COMPTE À REBOURS DESIGN */
+        .countdown-wrap {
+            margin: 60px 0;
+            text-align: center;
+        }
+        .countdown-title {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            color: #86868b;
+        }
+        .timer-grid {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        .timer-box {
+            background: var(--gray);
+            border: 1px solid var(--border);
+            width: 100px;
+            padding: 20px 0;
+        }
+        .timer-num {
+            display: block;
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .timer-unit {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #86868b;
+            font-weight: 600;
+        }
+
+        /* ARTICLES */
+        .news-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+        .news-card { padding-top: 30px; border-top: 1px solid var(--border); }
+        .news-card h2 { font-size: 24px; margin-bottom: 10px; }
+        .news-card p { color: #86868b; line-height: 1.5; }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <a href="index.html" class="back">← Back to Home</a>
+        <h1>Latest Updates.</h1>
+
+        <div class="slider-container">
+            <div class="slide active" style="background-image: url('actu2.jpg');">
+                <div class="slide-overlay"><h3>Altos OS Development Stage 1</h3></div>
+            </div>
+            <div class="slide" style="background-image: url('actu1.jpg');">
+                <div class="slide-overlay"><h3>New Features in TaskSchool</h3></div>
+            </div>
+            <div class="slide" style="background-image: url('actu3.jpg');">
+                <div class="slide-overlay"><h3>CS Suite</h3></div>
+            </div>
+        </div>
+
+        <div class="countdown-wrap">
+            <div class="countdown-title">Last Major Update for TaskSchool(2.0): March 4, 2026</div>
+            <div class="timer-grid">
+                <div class="timer-box"><span class="timer-num" id="d">00</span><span class="timer-unit">Days</span></div>
+                <div class="timer-box"><span class="timer-num" id="h">00</span><span class="timer-unit">Hours</span></div>
+                <div class="timer-box"><span class="timer-num" id="m">00</span><span class="timer-unit">Min</span></div>
+                <div class="timer-box"><span class="timer-num" id="s">00</span><span class="timer-unit">Sec</span></div>
+            </div>
+        </div>
+
+        <div class="news-grid">
+            <div class="news-card">
+                <h2>TaskSchool</h2>
+                <p>Sorry, but TaskSchool 1.3 is no longer supported and won’t get any security updates. Just a heads up, TaskSchool 2.0 will officially launch on 03/04/26 at 7:00 PM. This end of support won’t affect your user experience. Thanks for your attention!</p>
+            </div>
+            <div class="news-card">
+                <h2>Community Hub</h2>
+                <p>New! Community Forum in help center!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // SLIDER (6 SEC)
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        function nextSlide() {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }
+        setInterval(nextSlide, 6000);
+
+        // TIMER LOGIC
+        const targetDate = new Date("March 4, 2026 19:00:00").getTime();
+        setInterval(function() {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById("d").innerText = days < 10 ? "0"+days : days;
+            document.getElementById("h").innerText = hours < 10 ? "0"+hours : hours;
+            document.getElementById("m").innerText = minutes < 10 ? "0"+minutes : minutes;
+            document.getElementById("s").innerText = seconds < 10 ? "0"+seconds : seconds;
+            
+            if (distance < 0) {
+                document.querySelector(".timer-grid").innerHTML = "EVENT LIVE";
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

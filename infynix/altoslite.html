@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Altos Light</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; border-radius: 0 !important; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+        body { background: #fff; color: #1d1d1f; }
+        
+        nav { padding: 20px; border-bottom: 1px solid #d2d2d7; position: sticky; top:0; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); display: flex; justify-content: space-between; }
+        nav a { text-decoration: none; color: #000; font-weight: 600; }
+
+        .hero { padding: 120px 20px; text-align: center; }
+        h1 { font-size: 72px; letter-spacing: -3px; margin-bottom: 10px; }
+        .badge { display: inline-block; background: #e3f0ff; color: #0071e3; padding: 5px 15px; font-weight: 700; font-size: 14px; margin-bottom: 20px; text-transform: uppercase; }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; max-width: 1000px; margin: 50px auto; border: 1px solid #d2d2d7; }
+        .item { padding: 60px; border: 1px solid #d2d2d7; border-top: none; border-left: none; }
+        
+        .btn { 
+            display: inline-block; 
+            background: #000; 
+            color: #fff; 
+            padding: 15px 40px; 
+            text-decoration: none; 
+            font-weight: 600; 
+            transition: 0.3s; 
+        }
+
+        /* Le conteneur qui force le curseur "interdit" */
+        .disabled-container {
+            display: inline-block;
+            cursor: not-allowed; /* Force le sens interdit ici */
+            margin-top: 30px;
+        }
+
+        /* Le bouton à l'intérieur qui ne réagit plus à rien */
+        .btn-locked {
+            pointer-events: none; /* Désactive le clic et laisse passer le curseur du parent */
+            background: #333;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html">← Back</a>
+        <span>Altos Lite</span>
+    </nav>
+
+    <div class="hero">
+        <span class="badge">Free</span>
+        <h1>Light. Fast. Altos.</h1>
+        <p style="font-size: 24px; color: #666; max-width: 600px; margin: 0 auto;">
+            Give new life to your old computers with unparalleled smoothness.<br>
+            <span style="font-size: 18px;">(Currently in development, no release date scheduled)</span>
+        </p>
+        
+        <div class="disabled-container">
+            <a href="#" class="btn btn-locked">Download for Free</a>
+        </div>
+    </div>
+
+    <div class="grid">
+        <div class="item">
+            <h3>2 Go RAM</h3>
+            <p>Sufficient to spin perfectly..</p>
+        </div>
+        <div class="item">
+            <h3>Universel</h3>
+            <p>Compatible with x86, x64, and ARM.</p>
+        </div>
+    </div>
+</body>
+</html>
