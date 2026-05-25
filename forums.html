@@ -1,0 +1,677 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Forum — Infynix</title>
+<link rel="icon" type="image/png" href="logo.png">
+
+<style>
+:root {
+    --bg:#ffffff; --text:#1d1d1f; --accent:#0071e3;
+    --border:#d2d2d7; --gray:#f5f5f7;
+    --danger:#ff3b30; --green:#34c759;
+}
+*{margin:0;padding:0;box-sizing:border-box;border-radius:0!important;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}
+body{background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh;}
+
+/* ── NAVBAR ── */
+nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 52px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 10000;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+}
+.nav-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 800;
+    font-size: 16px;
+}
+.nav-logo-small { height: 24px; width: auto; }
+nav a {
+    text-decoration: none;
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 400;
+    opacity: 0.8;
+    position: relative;
+    padding: 5px 0;
+    margin: 0 15px;
+    transition: opacity 0.3s;
+}
+nav a:hover { opacity: 1; }
+nav a::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 1.7px;
+    bottom: 0;
+    left: 0;
+    background-color: var(--text);
+    transform: scaleX(0);
+    transform-origin: bottom right;
+    transition: transform 0.25s ease-out;
+}
+nav a:hover::after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
+}
+nav a.nav-active {
+    opacity: 1;
+    font-weight: 600;
+    color: var(--accent);
+}
+nav a.nav-active::after { display: none; }
+
+#main-content{max-width:1000px;margin:0 auto;padding:80px 20px 60px;}
+
+/* ── FORUM ── */
+#forum-section{margin-top:32px;animation:fadeIn .25s ease;}
+.forum-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;border-bottom:2px solid #1d1d1f;padding-bottom:16px;}
+.forum-header h2{font-size:32px;font-weight:700;letter-spacing:-1.5px;}
+.forum-header-right{display:flex;align-items:center;gap:12px;}
+#post-count-label{font-size:13px;color:#86868b;}
+
+.new-post-btn{display:inline-flex;align-items:center;gap:6px;background:#1d1d1f;color:#fff;border:none;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;transition:background .2s;}
+.new-post-btn svg{width:13px;height:13px;flex-shrink:0;transition:transform .2s;}
+.new-post-btn.open svg{transform:rotate(45deg);}
+.new-post-btn:hover{background:#333;}
+
+.new-post-area{background:var(--gray);padding:24px;margin-bottom:24px;display:none;animation:fadeIn .2s ease;}
+.new-post-area.open{display:block;}
+.new-post-area-label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;color:#86868b;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;}
+.rules-toggle{font-size:11px;color:#555;cursor:pointer;letter-spacing:0;text-transform:none;font-weight:600;display:inline-flex;align-items:center;gap:5px;transition:color .15s;}
+.rules-toggle:hover{color:#1d1d1f;}
+.rules-toggle svg{width:12px;height:12px;flex-shrink:0;}
+.rules-box{background:#fff;border-left:3px solid #1d1d1f;padding:14px 16px;margin-bottom:16px;display:none;font-size:13px;line-height:1.8;color:#444;}
+.rules-box strong{color:#1d1d1f;display:block;margin-bottom:6px;font-size:11px;text-transform:uppercase;letter-spacing:.5px;}
+
+.post-inputs{display:flex;flex-direction:column;gap:8px;}
+.post-inputs input,.post-inputs textarea{padding:12px 14px;border:1px solid #e0e0e0;font-size:14px;background:#fff;outline:none;resize:none;font-family:inherit;transition:border-color .2s;color:var(--text);}
+.post-inputs input:focus,.post-inputs textarea:focus{border-color:#1d1d1f;}
+.post-inputs textarea{height:80px;}
+.post-submit-row{display:flex;align-items:center;justify-content:space-between;margin-top:4px;}
+.char-counter{font-size:11px;color:#bbb;}
+.char-counter.warn{color:#888;}
+.char-counter.over{color:var(--danger);}
+.btn-post{background:#1d1d1f;color:#fff;border:none;padding:11px 22px;font-weight:700;font-size:13px;cursor:pointer;transition:background .2s;display:inline-flex;align-items:center;gap:6px;}
+.btn-post svg{width:13px;height:13px;flex-shrink:0;}
+.btn-post:hover{background:#333;}
+
+#posts-list{display:flex;flex-direction:column;gap:1px;background:#e8e8e8;border:1px solid #e8e8e8;}
+.post-item{background:#fff;padding:20px 24px;transition:background .12s;}
+.post-item:hover{background:#fafafa;}
+.post-item.pinned{border-left:3px solid #1d1d1f;}
+.post-item.post-removed{opacity:.4;}
+.post-meta{display:flex;align-items:center;gap:8px;margin-bottom:7px;flex-wrap:wrap;}
+.post-avatar{width:26px;height:26px;background:#e0e0e0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#555;flex-shrink:0;}
+.post-avatar.is-admin{background:#1d1d1f;color:#fff;}
+.post-author{font-weight:700;font-size:13px;}
+.post-time{font-size:11px;color:#bbb;}
+.admin-badge{background:#1d1d1f;color:#fff;font-size:9px;font-weight:800;padding:2px 6px;text-transform:uppercase;letter-spacing:1px;}
+.pin-badge{font-size:11px;color:#888;font-weight:600;display:inline-flex;align-items:center;gap:3px;}
+.pin-badge svg{width:10px;height:10px;}
+.mod-flag{font-size:10px;color:var(--danger);font-weight:800;text-transform:uppercase;letter-spacing:.5px;background:#fff0f0;padding:2px 6px;}
+.harassment-flag{font-size:10px;color:#fff;background:#1d1d1f;font-weight:800;text-transform:uppercase;letter-spacing:.5px;padding:2px 6px;display:inline-flex;align-items:center;gap:3px;}
+.harassment-flag svg{width:9px;height:9px;}
+.post-title{font-size:16px;font-weight:700;margin-bottom:5px;letter-spacing:-.2px;line-height:1.3;}
+.post-body{font-size:14px;color:#555;line-height:1.6;}
+.removed-label{font-size:12px;color:var(--danger);font-style:italic;margin-top:4px;}
+
+.post-actions{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap;}
+.vote-pill{display:flex;align-items:center;border:1px solid #e0e0e0;overflow:hidden;background:var(--gray);}
+.vote-btn{background:none;border:none;padding:6px 11px;cursor:pointer;font-size:12px;font-weight:700;color:#888;transition:.15s;display:inline-flex;align-items:center;gap:4px;}
+.vote-btn svg{width:11px;height:11px;flex-shrink:0;}
+.vote-btn:hover{background:#eaeaea;color:#333;}
+.vote-btn.voted-up{color:var(--green);background:#f0fff4;}
+.vote-btn.voted-down{color:var(--danger);background:#fff5f5;}
+.vote-divider{width:1px;height:26px;background:#e0e0e0;flex-shrink:0;}
+.vote-score{font-size:12px;font-weight:800;padding:0 9px;min-width:32px;text-align:center;color:#555;}
+.vote-score.pos{color:var(--green);}
+.vote-score.neg{color:var(--danger);}
+
+.action-btn{background:none;border:none;font-size:12px;font-weight:600;color:#999;cursor:pointer;padding:5px 8px;transition:color .15s;display:inline-flex;align-items:center;gap:4px;}
+.action-btn svg{width:13px;height:13px;flex-shrink:0;}
+.action-btn:hover{color:#1d1d1f;}
+
+.replies-section{margin-top:14px;padding-top:14px;border-top:1px solid #f0f0f0;display:none;}
+.reply-item{padding:9px 0 9px 14px;border-left:2px solid #e8e8e8;margin-bottom:8px;}
+.reply-item:last-child{margin-bottom:0;}
+.reply-item.post-removed{opacity:.4;}
+.reply-meta{font-size:11px;color:#bbb;margin-bottom:3px;display:flex;align-items:center;gap:6px;}
+.reply-author-name{font-weight:700;color:#333;}
+.reply-admin-badge{background:#1d1d1f;color:#fff;font-size:8px;font-weight:800;padding:1px 5px;text-transform:uppercase;letter-spacing:1px;}
+.reply-body{font-size:13px;color:#555;line-height:1.55;}
+.reply-vote-pill{display:flex;align-items:center;border:1px solid #e8e8e8;overflow:hidden;background:var(--gray);width:fit-content;margin-top:6px;}
+
+.reply-form{margin-top:12px;display:none;padding:14px;background:var(--gray);}
+.reply-form input,.reply-form textarea{width:100%;padding:9px 12px;border:1px solid #e0e0e0;font-size:13px;outline:none;font-family:inherit;background:#fff;margin-bottom:8px;}
+.reply-form textarea{height:60px;resize:none;}
+.reply-form input:focus,.reply-form textarea:focus{border-color:#1d1d1f;}
+.btn-reply-submit{background:#1d1d1f;color:#fff;border:none;padding:8px 18px;font-size:12px;font-weight:700;cursor:pointer;transition:background .2s;display:inline-flex;align-items:center;gap:5px;}
+.btn-reply-submit svg{width:12px;height:12px;flex-shrink:0;}
+.btn-reply-submit:hover{background:#333;}
+
+.empty-state{padding:50px 24px;text-align:center;}
+.empty-state svg{width:28px;height:28px;color:#ccc;margin-bottom:12px;}
+.empty-state strong{font-size:15px;color:#555;display:block;margin-bottom:4px;}
+.empty-state p{font-size:13px;color:#bbb;}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(70px);background:#1d1d1f;color:#fff;padding:11px 22px;font-size:13px;font-weight:600;transition:transform .28s cubic-bezier(.34,1.56,.64,1);z-index:9999;pointer-events:none;white-space:nowrap;}
+#toast.show{transform:translateX(-50%) translateY(0);}
+ 
+@keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:640px){h1{font-size:40px;}.post-item{padding:16px;}}
+</style>
+</head>
+<body>
+ 
+<div id="toast"></div>
+
+<h1 style="font-size: 60px; margin: 80px 0 20px 190px;">Forum &amp; Community</h1>
+
+<!-- ── NAVBAR ── -->
+<nav>
+    <div class="nav-container">
+        <a href="index.html" class="nav-brand">
+            <img src="logo.jpg" alt="" class="nav-logo-small">
+        </a>
+        <div style="display:flex; align-items:center;">
+            <a href="forums.html" class="nav-active">Forums</a>
+            <a href="contact.html">Contact</a>
+            <a href="tuto.html">Tutorials</a>
+            <a href="support.html">Support</a>
+            <a href="about.html">About</a>
+        </div>
+    </div>
+</nav>
+
+<div id="main-content">
+
+    <a style="color:var(--accent);text-decoration:none;font-size:14px;font-weight:500;" href="help.html">← Back to HelpCenter</a>
+
+    <!-- FORUM -->
+    <div id="forum-section">
+        <div class="forum-header">
+            <h2>Community Forum</h2>
+            <div class="forum-header-right">
+                <span id="post-count-label">0 posts</span>
+                <button class="new-post-btn" id="new-post-toggle" onclick="toggleNewPost()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Post
+                </button>
+            </div>
+        </div>
+
+        <div class="new-post-area" id="new-post-area">
+            <div class="new-post-area-label">
+                Write a post
+                <span class="rules-toggle" onclick="toggleRules()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                    Community Rules
+                </span>
+            </div>
+            <div class="rules-box" id="rules-box">
+                <strong>Rules — violations = censorship or removal</strong>
+                1. English only.<br>
+                2. No offensive, hateful or discriminatory language.<br>
+                3. No spam, links or self-promotion.<br>
+                4. No personal attacks or harassment.<br>
+                5. Stay on topic — Infynix products only.<br>
+                6. No sharing of private data or phone numbers.<br>
+                7. Inappropriate words and phone numbers are automatically censored.<br>
+                8. Posts with more than 10 replies are automatically removed (harassment protection).<br>
+                <a href='/rules'>All rules</a>
+            </div>
+            <div class="post-inputs">
+                <input type="text" id="new-post-author" placeholder="Your name" maxlength="30">
+                <input type="text" id="new-post-title" placeholder="Title — what's your question or topic?" maxlength="100">
+                <textarea id="new-post-body" placeholder="Write your message..." maxlength="500" oninput="updateCharCount()"></textarea>
+                <div class="post-submit-row">
+                    <span class="char-counter" id="char-counter">0 / 500</span>
+                    <button class="btn-post" onclick="submitPost()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                        Post
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="posts-list"></div>
+    </div>
+
+</div>
+
+<script>
+const ICO = {
+    up:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>`,
+    down:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`,
+    reply: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 00-4-4H4"/></svg>`,
+    chat:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>`,
+    pin:   `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5v6l1 1 1-1v-6h5v-2l-2-2z"/></svg>`,
+    send:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>`,
+    inbox: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>`,
+    shield:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+};
+
+const GH_TOKEN = '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';
+const GH_OWNER = 'labellolebris-lab';
+const GH_REPO  = 'infynix-site';
+const GH_FILE  = 'posts.json';
+const GH_API   = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}`;
+const HARASSMENT_REPLY_LIMIT = 10;
+
+let posts   = [];
+let fileSha = null;
+
+async function loadPosts() {
+    try {
+        const r = await fetch(GH_API, {
+            headers: { 'Authorization': `token ${GH_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
+        });
+        if (r.status === 404) {
+            posts = [];
+        } else {
+            const data = await r.json();
+            fileSha = data.sha;
+            posts = JSON.parse(atob(data.content.replace(/\n/g, '')));
+        }
+    } catch(e) {
+        try { const r = localStorage.getItem('infynix_forum_v5'); if (r) posts = JSON.parse(r); } catch(e2) {}
+    }
+    if (!posts.length) {
+        posts.push({
+            id:'pin-welcome', author:'Infynix Team',
+            title:'Welcome to the Infynix Community Forum!',
+            body:'Ask questions, share feedback, and help other users. Please read the community rules before posting. The Infynix team monitors this forum regularly.',
+            timestamp:Date.now()-300000, upvotes:0, downvotes:0,
+            pinned:true, removed:false, replies:[], isAdmin:true
+        });
+        await savePosts();
+    }
+    renderForum();
+}
+
+async function savePosts() {
+    try {
+        const content = btoa(unescape(encodeURIComponent(JSON.stringify(posts))));
+        const body    = { message:'update posts', content, committer:{name:'Infynix Bot',email:'bot@infynix.com'} };
+        if (fileSha) body.sha = fileSha;
+        const r = await fetch(GH_API, {
+            method:'PUT',
+            headers:{ 'Authorization':`token ${GH_TOKEN}`, 'Accept':'application/vnd.github.v3+json', 'Content-Type':'application/json' },
+            body: JSON.stringify(body)
+        });
+        const data = await r.json();
+        if (data.content) fileSha = data.content.sha;
+    } catch(e) {}
+    try { localStorage.setItem('infynix_forum_v5', JSON.stringify(posts)); } catch(e) {}
+}
+
+const BANNED_WORDS = [
+    "fuck","shit","bitch","asshole","cunt","dick","pussy","bastard",
+    "nigga","nigger","faggot","retard","whore","slut","piss","cock",
+    "bollocks","wanker","twat","motherfucker","kys","kill yourself",
+    "dumbass","moron","imbecile","jackass","dipshit","scum","trash",
+    "wesh","wallah","connard","connasse","salope","pute","putain",
+    "batard","fdp","fils de pute","enculer","encule","ta gueule","tg",
+    "nique","niquer","suce","sucer","zgeg",
+    "terrorist","bomb","hack","murder","rape","shoot","stab","kill","suicide",
+    "porn","nude","naked","onlyfans","pornhub","xxx","nsfw","hentai",
+];
+
+const BANNED_PATTERNS = [
+    /\bsk[i1!]b[i1!]d[i1!]\b/gi,
+    /\br[i1!]z+\b/gi,
+    /\bgy\s*[a@]tt?\b/gi,
+    /\bgl[a@]z[i1]ng\b/gi,
+    /\bd[e3]lul+u\b/gi,
+    /\by[a@]pp[i1]ng\b/gi,
+    /no\s*diddy/gi,
+    /\bw[a@]ll[a@]h\b/gi,
+    /\bin[sc][e3]l\b/gi,
+];
+
+const PHONE_RE = [
+    /(\+?(\d[\s.\-()\u00a0]?){7,}\d)/g,
+    /0[67][\s.\-]?\d{2}([\s.\-]?\d{2}){3}/g,
+    /\+33[\s.\-]?[67]([\s.\-]?\d{2}){4}/g,
+];
+
+const SPAM_RE = [/https?:\/\//i, /www\./i, /\.com\b/i, /buy now/i, /click here/i, /discord\.gg/i, /t\.me\//i];
+const NON_EN  = /[^\x00-\x7F]{5,}/;
+const CENSORED_PLACEHOLDER = '[content removed]';
+
+function containsBanned(text) {
+    for (const w of BANNED_WORDS) {
+        const escaped  = w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const boundary = /\s/.test(w) ? '' : '\\b';
+        try { if (new RegExp(`${boundary}${escaped}${boundary}`, 'i').test(text)) return true; } catch(e) {}
+    }
+    for (const re of BANNED_PATTERNS) {
+        if (new RegExp(re.source, re.flags.replace('g','')).test(text)) return true;
+    }
+    for (const re of PHONE_RE) {
+        if (new RegExp(re.source, re.flags.replace('g','')).test(text)) return true;
+    }
+    return false;
+}
+
+function censorText(text) {
+    return containsBanned(text) ? CENSORED_PLACEHOLDER : text;
+}
+
+function moderateContent(author, title, body) {
+    if (!author || author.trim().length < 2)  return { ok:false, reason:"Please enter a valid name (min 2 chars)." };
+    if (!title  || title.trim().length  < 1)  return { ok:false, reason:"Title is required." };
+    if (!body   || body.trim().length   < 10) return { ok:false, reason:"Message is too short (min 10 chars)." };
+    for (const p of SPAM_RE) if (p.test(title) || p.test(body)) return { ok:false, reason:"No external links or promotional content." };
+    if (NON_EN.test(body)) return { ok:false, reason:"Please write in English only." };
+    return { ok:true };
+}
+
+function moderateReply(author, body) {
+    if (!author || author.trim().length < 2) return { ok:false, reason:"Please enter your name." };
+    if (!body   || body.trim().length   < 5) return { ok:false, reason:"Reply is too short." };
+    for (const p of SPAM_RE) if (p.test(body)) return { ok:false, reason:"No links allowed." };
+    return { ok:true };
+}
+
+function checkHarassment(post) {
+    if (!post.isAdmin && post.replies.length > HARASSMENT_REPLY_LIMIT) {
+        post.removed       = true;
+        post.removedReason = 'harassment';
+        return true;
+    }
+    return false;
+}
+
+function getScore(p) { return (p.upvotes||0) - (p.downvotes||0); }
+function getSortedPosts() {
+    const pinned = posts.filter(p =>  p.pinned);
+    const normal = posts.filter(p => !p.pinned).sort((a,b) => b.timestamp - a.timestamp);
+    return [...pinned, ...normal];
+}
+function getUserVote(key) { return parseInt(sessionStorage.getItem('v_' + key) || '0'); }
+
+function renderForum() {
+    const list   = document.getElementById('posts-list');
+    const sorted = getSortedPosts();
+    document.getElementById('post-count-label').textContent = posts.length + ' post' + (posts.length !== 1 ? 's' : '');
+    if (!sorted.length) {
+        list.innerHTML = `<div class="empty-state">${ICO.inbox}<strong>No posts yet.</strong><p>Be the first to start a conversation!</p></div>`;
+        return;
+    }
+    list.innerHTML = sorted.map(renderPost).join('');
+    sorted.forEach(p => {
+        if (p.removed) return;
+        document.getElementById('up-'  + p.id)?.addEventListener('click', () => vote(p.id,  1));
+        document.getElementById('dn-'  + p.id)?.addEventListener('click', () => vote(p.id, -1));
+        document.getElementById('replies-toggle-' + p.id)?.addEventListener('click', () => toggleReplies(p.id));
+        document.getElementById('reply-toggle-'   + p.id)?.addEventListener('click', () => toggleReplyForm(p.id));
+        document.getElementById('reply-submit-'   + p.id)?.addEventListener('click', () => submitReply(p.id));
+        p.replies.forEach((_, i) => {
+            document.getElementById('rup-' + p.id + '-' + i)?.addEventListener('click', () => voteReply(p.id, i,  1));
+            document.getElementById('rdn-' + p.id + '-' + i)?.addEventListener('click', () => voteReply(p.id, i, -1));
+        });
+    });
+}
+
+function renderPost(p) {
+    const score = getScore(p);
+    const uv    = getUserVote(p.id);
+    const sc    = score > 0 ? 'pos' : score < 0 ? 'neg' : '';
+    const ini   = p.author.slice(0, 2).toUpperCase();
+    const rc    = p.replies.length;
+    const uvUp  = uv ===  1 ? ' voted-up'   : '';
+    const uvDn  = uv === -1 ? ' voted-down' : '';
+    const left  = HARASSMENT_REPLY_LIMIT - rc;
+    const replyWarn = (!p.isAdmin && rc >= 8 && rc <= HARASSMENT_REPLY_LIMIT && !p.removed)
+        ? `<span class="harassment-flag">${ICO.shield} ${left} repl${left > 1 ? 'ies' : 'y'} left</span>` : '';
+    return `<div class="post-item${p.pinned?' pinned':''}${p.removed?' post-removed':''}" id="post-${p.id}">
+        <div class="post-meta">
+            <div class="post-avatar${p.isAdmin?' is-admin':''}">${ini}</div>
+            <span class="post-author">${esc(p.author)}</span>
+            ${p.isAdmin ? '<span class="admin-badge">Infynix</span>' : ''}
+            <span class="post-time">${formatTime(p.timestamp)}</span>
+            ${p.pinned ? `<span class="pin-badge">${ICO.pin} Pinned</span>` : ''}
+            ${replyWarn}
+            ${p.removed && p.removedReason === 'harassment'
+                ? `<span class="mod-flag">${ICO.shield} Removed — harassment</span>`
+                : p.removed ? '<span class="mod-flag">Removed</span>' : ''}
+        </div>
+        <div class="post-title">${esc(p.title)}</div>
+        ${p.removed
+            ? `<div class="removed-label">${p.removedReason === 'harassment' ? 'Automatically removed — too many replies.' : 'Removed by moderation.'}</div>`
+            : `<div class="post-body">${esc(p.body)}</div>
+               <div class="post-actions">
+                 <div class="vote-pill">
+                   <button class="vote-btn${uvUp}" id="up-${p.id}">${ICO.up}${(p.upvotes||0)>0?p.upvotes:''}</button>
+                   <div class="vote-divider"></div>
+                   <span class="vote-score ${sc}">${score>0?'+'+score:score}</span>
+                   <div class="vote-divider"></div>
+                   <button class="vote-btn${uvDn}" id="dn-${p.id}">${ICO.down}${(p.downvotes||0)>0?p.downvotes:''}</button>
+                 </div>
+                 <button class="action-btn" id="replies-toggle-${p.id}">${ICO.chat} ${rc>0?rc+' repl'+(rc>1?'ies':'y'):'Replies'}</button>
+                 <button class="action-btn" id="reply-toggle-${p.id}">${ICO.reply} Reply</button>
+               </div>
+               <div class="reply-form" id="reply-form-${p.id}">
+                 <input type="text" id="reply-author-${p.id}" placeholder="Your name" maxlength="30">
+                 <textarea id="reply-body-${p.id}" placeholder="Write your reply..." maxlength="300"></textarea>
+                 <button class="btn-reply-submit" id="reply-submit-${p.id}">${ICO.send} Send</button>
+               </div>
+               <div class="replies-section" id="replies-${p.id}">
+                 ${p.replies.map((r,i) => renderReply(r, p.id, i)).join('')}
+               </div>`}
+    </div>`;
+}
+
+function renderReply(r, pid, idx) {
+    const rs   = (r.upvotes||0) - (r.downvotes||0);
+    const sc   = rs > 0 ? 'pos' : rs < 0 ? 'neg' : '';
+    const uv   = getUserVote('r_' + pid + '_' + idx);
+    const uvUp = uv ===  1 ? ' voted-up'   : '';
+    const uvDn = uv === -1 ? ' voted-down' : '';
+    return `<div class="reply-item${r.removed?' post-removed':''}">
+        <div class="reply-meta">
+            <span class="reply-author-name">${esc(r.author)}</span>
+            ${r.isAdmin ? '<span class="reply-admin-badge">Infynix</span>' : ''}
+            <span>· ${formatTime(r.timestamp)}</span>
+            ${r.removed ? '<span class="mod-flag">Removed</span>' : ''}
+        </div>
+        ${r.removed ? '' : `
+        <div class="reply-body">${esc(r.body)}</div>
+        <div class="reply-vote-pill">
+          <button class="vote-btn${uvUp}" id="rup-${pid}-${idx}" style="padding:4px 9px">${ICO.up}${(r.upvotes||0)>0?r.upvotes:''}</button>
+          <div class="vote-divider"></div>
+          <span class="vote-score ${sc}" style="font-size:11px;padding:0 7px">${rs>0?'+':''}${rs}</span>
+          <div class="vote-divider"></div>
+          <button class="vote-btn${uvDn}" id="rdn-${pid}-${idx}" style="padding:4px 9px">${ICO.down}${(r.downvotes||0)>0?r.downvotes:''}</button>
+        </div>`}
+    </div>`;
+}
+
+function toggleNewPost() {
+    const area = document.getElementById('new-post-area');
+    const btn  = document.getElementById('new-post-toggle');
+    area.classList.toggle('open');
+    btn.classList.toggle('open');
+}
+
+async function submitPost() {
+    const author = document.getElementById('new-post-author').value.trim();
+    const title  = document.getElementById('new-post-title').value.trim();
+    const raw    = document.getElementById('new-post-body').value.trim();
+    const mod = moderateContent(author, title, raw);
+    if (!mod.ok) { showToast(mod.reason); return; }
+    const ca = censorText(author), ct = censorText(title), cb = censorText(raw);
+    posts.unshift({
+        id: Date.now().toString(36) + Math.random().toString(36).substr(2,5),
+        author:ca, title:ct, body:cb, timestamp:Date.now(),
+        upvotes:0, downvotes:0, pinned:false, removed:false, replies:[], isAdmin:false
+    });
+    await savePosts();
+    document.getElementById('new-post-author').value = '';
+    document.getElementById('new-post-title').value  = '';
+    document.getElementById('new-post-body').value   = '';
+    updateCharCount();
+    document.getElementById('new-post-area').classList.remove('open');
+    document.getElementById('new-post-toggle').classList.remove('open');
+    renderForum();
+    showToast('Post published.');
+}
+
+async function submitReply(postId) {
+    const author = document.getElementById('reply-author-' + postId)?.value.trim();
+    const raw    = document.getElementById('reply-body-'   + postId)?.value.trim();
+    const mod = moderateReply(author, raw);
+    if (!mod.ok) { showToast(mod.reason); return; }
+    const post = posts.find(p => p.id === postId);
+    if (!post) return;
+    const cb = censorText(raw), ca = censorText(author);
+    post.replies.push({ author:ca, body:cb, timestamp:Date.now(), upvotes:0, downvotes:0, removed:false, isAdmin:false });
+    if (checkHarassment(post)) { await savePosts(); renderForum(); showToast('Post removed — harassment protection.'); return; }
+    await savePosts();
+    renderForum();
+    const el = document.getElementById('replies-' + postId);
+    if (el) el.style.display = 'block';
+    showToast('Reply posted.');
+}
+
+async function vote(postId, dir) {
+    const post = posts.find(p => p.id === postId);
+    if (!post || post.removed) return;
+    const ex = getUserVote(postId);
+    if (ex === dir) { showToast('Already voted.'); return; }
+    if (dir ===  1) { post.upvotes++;   if (ex === -1) post.downvotes = Math.max(0,(post.downvotes||0)-1); }
+    else            { post.downvotes++; if (ex ===  1) post.upvotes   = Math.max(0,(post.upvotes  ||0)-1); }
+    sessionStorage.setItem('v_' + postId, dir);
+    await savePosts();
+    renderForum();
+}
+
+async function voteReply(postId, idx, dir) {
+    const post  = posts.find(p => p.id === postId);
+    if (!post) return;
+    const reply = post.replies[idx];
+    if (!reply || reply.removed) return;
+    const key = 'r_' + postId + '_' + idx;
+    const ex  = getUserVote(key);
+    if (ex === dir) return;
+    if (dir ===  1) { reply.upvotes   = (reply.upvotes  ||0)+1; if (ex===-1) reply.downvotes = Math.max(0,(reply.downvotes||0)-1); }
+    else            { reply.downvotes = (reply.downvotes||0)+1; if (ex=== 1) reply.upvotes   = Math.max(0,(reply.upvotes  ||0)-1); }
+    sessionStorage.setItem('v_' + key, dir);
+    await savePosts();
+    renderForum();
+    const el = document.getElementById('replies-' + postId);
+    if (el) el.style.display = 'block';
+}
+
+function toggleReplyForm(postId) {
+    const f = document.getElementById('reply-form-' + postId);
+    if (f) f.style.display = f.style.display === 'block' ? 'none' : 'block';
+}
+function toggleReplies(postId) {
+    const s = document.getElementById('replies-' + postId);
+    if (s) s.style.display = s.style.display === 'block' ? 'none' : 'block';
+}
+function toggleRules() {
+    const b = document.getElementById('rules-box');
+    b.style.display = b.style.display === 'block' ? 'none' : 'block';
+}
+function updateCharCount() {
+    const len = document.getElementById('new-post-body').value.length;
+    const c   = document.getElementById('char-counter');
+    c.textContent = len + ' / 500';
+    c.className   = 'char-counter' + (len > 450 ? ' warn' : '') + (len >= 500 ? ' over' : '');
+}
+
+window.infynixadminposter = async function(title, body, opts={}) {
+    if (!title || !body) { console.log('%c[Infynix Admin] infynixadminposter("Title","Body",{pinned:false})','color:#0071e3;font-weight:bold'); return; }
+    await loadPosts();
+    posts.unshift({ id:'admin-'+Date.now().toString(36), author:'Infynix Team', title:String(title), body:String(body), timestamp:Date.now(), upvotes:0, downvotes:0, pinned:opts.pinned===true, removed:false, replies:[], isAdmin:true });
+    await savePosts(); renderForum();
+    console.log('%c[Infynix Admin] Post published: "'+title+'"','color:#34c759;font-weight:bold');
+    showToast('Admin post published.');
+};
+
+window.infynixadminreply = async function(postId, body) {
+    await loadPosts();
+    if (!postId || !body) { console.log('%c[Infynix Admin] infynixadminreply("postId","Reply")','color:#0071e3;font-weight:bold'); console.table(posts.map(p=>({id:p.id,title:p.title,replies:p.replies.length}))); return; }
+    const post = posts.find(p => p.id === String(postId));
+    if (!post) { console.log('%c[Infynix Admin] Not found: "'+postId+'"','color:#ff3b30;font-weight:bold'); return; }
+    post.replies.push({ author:'Infynix Team', body:String(body), timestamp:Date.now(), upvotes:0, downvotes:0, removed:false, isAdmin:true });
+    await savePosts(); renderForum();
+    const el = document.getElementById('replies-' + post.id);
+    if (el) el.style.display = 'block';
+    console.log('%c[Infynix Admin] Reply on: "'+post.title+'"','color:#34c759;font-weight:bold');
+    showToast('Admin reply posted.');
+};
+
+window.infynixadmindelete = async function(target, replyTarget) {
+    await loadPosts();
+    if (String(target).toLowerCase() === 'replies') {
+        const post = posts.find(p => p.id === String(replyTarget));
+        if (!post) return;
+        post.replies = []; post.removed = false; post.removedReason = undefined;
+        await savePosts(); renderForum(); showToast('Replies deleted.'); return;
+    }
+    if (target === undefined) {
+        posts = posts.filter(p => p.pinned);
+        posts.forEach(p => { p.replies=[]; p.removed=false; p.removedReason=undefined; });
+        await savePosts(); renderForum(); showToast('All posts and replies deleted.');
+    } else if (String(target).toLowerCase() === 'all') {
+        posts = [];
+        await savePosts(); renderForum(); showToast('Forum cleared.');
+    } else {
+        const idx = posts.findIndex(p => p.id === String(target));
+        if (idx === -1) return;
+        posts.splice(idx, 1);
+        await savePosts(); renderForum(); showToast('Post + replies deleted.');
+    }
+};
+
+function formatTime(ts) {
+    const d = Date.now() - ts;
+    if (d < 60000)   return 'just now';
+    if (d < 3600000) return Math.floor(d/60000)  + 'm ago';
+    if (d < 86400000)return Math.floor(d/3600000) + 'h ago';
+    return Math.floor(d/86400000) + 'd ago';
+}
+function esc(s) {
+    return String(s)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Charger le forum au démarrage
+loadPosts();
+</script>
+</body>
+</html>

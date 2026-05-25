@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Infynix — Admin Forum</title>
+<style>
+:root {
+    --bg: #f5f5f7;
+    --surface: #ffffff;
+    --text: #1d1d1f;
+    --muted: #86868b;
+    --border: #e0e0e0;
+    --accent: #0071e3;
+    --danger: #ff3b30;
+    --success: #34c759;
+    --warn: #ff9500;
+}
+* { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+body { background: var(--bg); color: var(--text); min-height: 100vh; }
+
+header {
+    background: rgba(255,255,255,0.9);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+header h1 { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; }
+.badge { font-size: 10px; background: #1d1d1f; color: #fff; padding: 3px 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-left: 10px; }
+#status-dot { width: 8px; height: 8px; border-radius: 50%; background: #ccc; display: inline-block; margin-right: 6px; }
+#status-dot.ok { background: var(--success); }
+#status-dot.err { background: var(--danger); }
+#status-txt { font-size: 12px; color: var(--muted); }
+
+.layout { display: grid; grid-template-columns: 280px 1fr; gap: 0; min-height: calc(100vh - 56px); }
+
+/* SIDEBAR */
+.sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.sidebar-section { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); font-weight: 700; padding: 16px 12px 6px; }
+.sidebar-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    transition: background .15s;
+}
+.sidebar-btn:hover { background: #f5f5f7; }
+.sidebar-btn.active { background: #1d1d1f; color: #fff; }
+.sidebar-btn .ico { width: 18px; height: 18px; flex-shrink: 0; opacity: .7; }
+.sidebar-btn.active .ico { opacity: 1; }
+.sidebar-btn .count { margin-left: auto; font-size: 11px; background: #e0e0e0; padding: 2px 7px; font-weight: 700; }
+.sidebar-btn.active .count { background: rgba(255,255,255,0.2); }
+
+/* MAIN */
+.main { padding: 32px; display: flex; flex-direction: column; gap: 24px; }
+
+.panel { background: var(--surface); border: 1px solid var(--border); }
+.panel-head { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.panel-head h2 { font-size: 14px; font-weight: 700; }
+.panel-body { padding: 20px; }
+
+/* FORMS */
+label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; color: var(--muted); margin-bottom: 6px; }
+input[type=text], textarea, select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    font-size: 13px;
+    font-family: inherit;
+    background: #fafafa;
+    color: var(--text);
+    outline: none;
+    transition: border-color .15s;
+    display: block;
+}
+input[type=text]:focus, textarea:focus, select:focus { border-color: #1d1d1f; background: #fff; }
+textarea { resize: vertical; min-height: 80px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-group { margin-bottom: 14px; }
+.form-group:last-child { margin-bottom: 0; }
+
+/* BUTTONS */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: background .15s, opacity .15s;
+}
+.btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+.btn-primary { background: #1d1d1f; color: #fff; }
+.btn-primary:hover { background: #333; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover { background: #d63028; }
+.btn-warn { background: var(--warn); color: #fff; }
+.btn-warn:hover { background: #e08700; }
+.btn-ghost { background: #f0f0f0; color: var(--text); }
+.btn-ghost:hover { background: #e0e0e0; }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* POSTS TABLE */
+.posts-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.posts-table th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 700; padding: 8px 12px; border-bottom: 2px solid var(--border); }
+.posts-table td { padding: 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.posts-table tr:last-child td { border-bottom: none; }
+.posts-table tr:hover td { background: #fafafa; }
+.post-title-cell { font-weight: 600; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.post-author-cell { color: var(--muted); }
+.tag { display: inline-flex; align-items: center; font-size: 10px; font-weight: 700; padding: 3px 8px; text-transform: uppercase; letter-spacing: .5px; gap: 4px; }
+.tag-admin { background: #1d1d1f; color: #fff; }
+.tag-pinned { background: #f0f0f0; color: #555; }
+.tag-removed { background: #fff0f0; color: var(--danger); }
+.tag-ok { background: #f0fff4; color: var(--success); }
+
+.action-row { display: flex; gap: 6px; }
+.tbl-btn {
+    padding: 5px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: #fafafa;
+    color: var(--text);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: background .12s;
+}
+.tbl-btn:hover { background: #eee; }
+.tbl-btn.del { border-color: #ffcdd2; color: var(--danger); }
+.tbl-btn.del:hover { background: #fff0f0; }
+.tbl-btn.reply-tbl { border-color: #b3d9ff; color: var(--accent); }
+.tbl-btn.reply-tbl:hover { background: #e6f1fb; }
+
+/* DANGER ZONE */
+.danger-zone { border: 1px solid #ffcdd2; }
+.danger-zone .panel-head { border-bottom-color: #ffcdd2; background: #fff8f8; }
+.danger-zone .panel-head h2 { color: var(--danger); }
+
+/* REPLY MODAL */
+.modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.4);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+    background: #fff;
+    width: 480px;
+    max-width: 95vw;
+    padding: 28px;
+    position: relative;
+    animation: slideUp .2s ease;
+}
+@keyframes slideUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+.modal h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.modal .modal-sub { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
+.modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; cursor: pointer; color: var(--muted); font-size: 20px; line-height: 1; }
+.modal-close:hover { color: var(--text); }
+
+/* TOAST */
+#toast {
+    position: fixed; bottom: 28px; left: 50%;
+    transform: translateX(-50%) translateY(60px);
+    background: #1d1d1f; color: #fff;
+    padding: 10px 22px; font-size: 13px; font-weight: 600;
+    z-index: 9999; transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+    white-space: nowrap;
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+#toast.err { background: var(--danger); }
+#toast.ok { background: var(--success); }
+
+/* STATS */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+.stat-card { background: #fff; padding: 20px 24px; }
+.stat-card .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 700; margin-bottom: 8px; }
+.stat-card .stat-val { font-size: 28px; font-weight: 800; letter-spacing: -1px; }
+.stat-card .stat-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+/* LOADING */
+.loading { text-align: center; padding: 40px; color: var(--muted); font-size: 13px; }
+.spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid #e0e0e0; border-top-color: #1d1d1f; border-radius: 50%; animation: spin .6s linear infinite; margin-right: 8px; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* SECTION VISIBILITY */
+.section { display: none; }
+.section.active { display: block; }
+
+/* CONFIRM */
+.confirm-box { background: #fff8f8; border: 1px solid #ffcdd2; padding: 16px 20px; margin-bottom: 20px; font-size: 13px; color: #c0392b; display: none; }
+.confirm-box.show { display: block; }
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<!-- REPLY MODAL -->
+<div class="modal-overlay" id="reply-modal">
+    <div class="modal">
+        <button class="modal-close" onclick="closeReplyModal()">×</button>
+        <h3>Reply as Infynix Team</h3>
+        <p class="modal-sub" id="reply-modal-sub">Replying to post</p>
+        <div class="form-group">
+            <label>Message</label>
+            <textarea id="reply-modal-body" placeholder="Write the reply..." rows="4"></textarea>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
+            <button class="btn btn-ghost" onclick="closeReplyModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="submitReplyModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                Send reply
+            </button>
+        </div>
+    </div>
+</div>
+
+<header>
+    <div style="display:flex;align-items:center;">
+        <h1>Infynix Admin</h1>
+        <span class="badge">Forum</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px;">
+        <span><span id="status-dot"></span><span id="status-txt">Connecting...</span></span>
+        <button class="btn btn-ghost" style="padding:7px 14px;font-size:12px;" onclick="loadPosts()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.75"/></svg>
+            Refresh
+        </button>
+    </div>
+</header>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-section">Navigation</div>
+        <button class="sidebar-btn active" onclick="showSection('overview')" id="nav-overview">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Overview
+        </button>
+        <button class="sidebar-btn" onclick="showSection('posts')" id="nav-posts">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            All Posts
+            <span class="count" id="nav-count">0</span>
+        </button>
+        <button class="sidebar-btn" onclick="showSection('new-post')" id="nav-new-post">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Post
+        </button>
+        <div class="sidebar-section">Moderation</div>
+        <button class="sidebar-btn" onclick="showSection('danger')" id="nav-danger">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            Danger Zone
+        </button>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <!-- OVERVIEW -->
+        <div class="section active" id="section-overview">
+            <div class="stats-grid" id="stats-grid">
+                <div class="stat-card"><div class="stat-label">Total Posts</div><div class="stat-val" id="stat-total">—</div></div>
+                <div class="stat-card"><div class="stat-label">Total Replies</div><div class="stat-val" id="stat-replies">—</div></div>
+                <div class="stat-card"><div class="stat-label">Removed</div><div class="stat-val" id="stat-removed">—</div></div>
+                <div class="stat-card"><div class="stat-label">Pinned</div><div class="stat-val" id="stat-pinned">—</div></div>
+            </div>
+
+            <div class="panel" style="margin-top:24px;">
+                <div class="panel-head"><h2>Recent posts</h2></div>
+                <div class="panel-body" id="overview-recent">
+                    <div class="loading"><span class="spinner"></span>Loading...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ALL POSTS -->
+        <div class="section" id="section-posts">
+            <div class="panel">
+                <div class="panel-head">
+                    <h2>All posts</h2>
+                    <input type="text" id="search-input" placeholder="Search..." style="width:220px;padding:7px 12px;font-size:12px;" oninput="renderTable()">
+                </div>
+                <div class="panel-body" style="padding:0;">
+                    <div id="posts-table-wrap">
+                        <div class="loading"><span class="spinner"></span>Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW POST -->
+        <div class="section" id="section-new-post">
+            <div class="panel">
+                <div class="panel-head"><h2>Publish an admin post</h2></div>
+                <div class="panel-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Title</label>
+                            <input type="text" id="np-title" placeholder="Post title..." maxlength="100">
+                        </div>
+                        <div class="form-group" style="display:flex;flex-direction:column;justify-content:flex-end;">
+                            <label>Options</label>
+                            <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:13px;font-weight:500;color:var(--text);cursor:pointer;">
+                                <input type="checkbox" id="np-pinned"> Pin this post
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Message</label>
+                        <textarea id="np-body" placeholder="Write the post content..." style="min-height:120px;"></textarea>
+                    </div>
+                    <div style="display:flex;justify-content:flex-end;">
+                        <button class="btn btn-primary" onclick="adminPost()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                            Publish
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DANGER ZONE -->
+        <div class="section" id="section-danger">
+            <div class="panel danger-zone">
+                <div class="panel-head"><h2>? Danger Zone</h2></div>
+                <div class="panel-body" style="display:flex;flex-direction:column;gap:16px;">
+
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px;border:1px solid var(--border);">
+                        <div>
+                            <div style="font-weight:700;font-size:13px;">Delete all user posts</div>
+                            <div style="font-size:12px;color:var(--muted);margin-top:2px;">Keeps pinned posts, deletes everything else + replies</div>
+                        </div>
+                        <button class="btn btn-warn" onclick="confirmAction('clear-users')">Delete user posts</button>
+                    </div>
+
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px;border:1px solid var(--border);">
+                        <div>
+                            <div style="font-weight:700;font-size:13px;">Delete a specific post</div>
+                            <div style="font-size:12px;color:var(--muted);margin-top:2px;">Delete by post ID (including its replies)</div>
+                        </div>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <input type="text" id="del-post-id" placeholder="Post ID" style="width:180px;padding:8px 12px;">
+                            <button class="btn btn-danger" onclick="confirmAction('del-post')">Delete</button>
+                        </div>
+                    </div>
+
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px;border:1px solid var(--border);">
+                        <div>
+                            <div style="font-weight:700;font-size:13px;">Delete replies of a post</div>
+                            <div style="font-size:12px;color:var(--muted);margin-top:2px;">Clear replies without deleting the post</div>
+                        </div>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <input type="text" id="del-replies-id" placeholder="Post ID" style="width:180px;padding:8px 12px;">
+                            <button class="btn btn-warn" onclick="confirmAction('del-replies')">Clear replies</button>
+                        </div>
+                    </div>
+
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px;border:1px solid #ffcdd2;background:#fff8f8;">
+                        <div>
+                            <div style="font-weight:700;font-size:13px;color:var(--danger);">Wipe entire forum</div>
+                            <div style="font-size:12px;color:var(--muted);margin-top:2px;">Delete absolutely everything, including pinned posts</div>
+                        </div>
+                        <button class="btn btn-danger" onclick="confirmAction('wipe')">Wipe all</button>
+                    </div>
+
+                    <div class="confirm-box" id="confirm-box">
+                        <div style="font-weight:700;margin-bottom:10px;" id="confirm-msg">Are you sure?</div>
+                        <div style="display:flex;gap:8px;">
+                            <button class="btn btn-danger" onclick="executeAction()">Yes, confirm</button>
+                            <button class="btn btn-ghost" onclick="cancelConfirm()">Cancel</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script>
+const GH_TOKEN = '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';
+const GH_OWNER = 'labellolebris-lab';
+const GH_REPO  = 'infynix-site';
+const GH_FILE  = 'posts.json';
+const GH_API   = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}`;
+
+let posts   = [];
+let fileSha = null;
+let replyTargetId = null;
+let pendingAction = null;
+
+/* -- GITHUB -- */
+async function loadPosts() {
+    setStatus('loading');
+    try {
+        const r = await fetch(GH_API, {
+            headers: { 'Authorization': `token ${GH_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
+        });
+        if (r.status === 404) { posts = []; fileSha = null; }
+        else {
+            const data = await r.json();
+            fileSha = data.sha;
+            posts = JSON.parse(atob(data.content.replace(/\n/g, '')));
+        }
+        setStatus('ok');
+    } catch(e) {
+        setStatus('err', 'Connection error');
+        toast('GitHub connection error', 'err');
+    }
+    updateStats();
+    renderTable();
+    renderRecent();
+}
+
+async function savePosts() {
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(posts))));
+    const body = { message: 'admin update', content, committer: { name: 'Infynix Admin', email: 'admin@infynix.com' } };
+    if (fileSha) body.sha = fileSha;
+    const r = await fetch(GH_API, {
+        method: 'PUT',
+        headers: { 'Authorization': `token ${GH_TOKEN}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+    });
+    const data = await r.json();
+    if (data.content) fileSha = data.content.sha;
+    return r.ok;
+}
+
+/* -- STATUS -- */
+function setStatus(s, msg) {
+    const dot = document.getElementById('status-dot');
+    const txt = document.getElementById('status-txt');
+    if (s === 'ok')      { dot.className = 'ok'; txt.textContent = 'Connected — ' + posts.length + ' posts'; }
+    else if (s === 'err') { dot.className = 'err'; txt.textContent = msg || 'Error'; }
+    else                  { dot.className = ''; txt.textContent = 'Loading...'; }
+}
+
+/* -- STATS -- */
+function updateStats() {
+    document.getElementById('stat-total').textContent   = posts.length;
+    document.getElementById('stat-replies').textContent = posts.reduce((a,p) => a + p.replies.length, 0);
+    document.getElementById('stat-removed').textContent = posts.filter(p => p.removed).length;
+    document.getElementById('stat-pinned').textContent  = posts.filter(p => p.pinned).length;
+    document.getElementById('nav-count').textContent    = posts.length;
+}
+
+/* -- TABLE -- */
+function renderTable() {
+    const q   = (document.getElementById('search-input')?.value || '').toLowerCase();
+    const filtered = posts.filter(p => !q || p.title.toLowerCase().includes(q) || p.author.toLowerCase().includes(q) || p.body.toLowerCase().includes(q));
+    const wrap = document.getElementById('posts-table-wrap');
+    if (!filtered.length) { wrap.innerHTML = '<div class="loading">No posts found.</div>'; return; }
+    wrap.innerHTML = `<table class="posts-table">
+        <thead><tr>
+            <th>Author</th>
+            <th>Title</th>
+            <th>Replies</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr></thead>
+        <tbody>${filtered.map(p => `
+        <tr>
+            <td class="post-author-cell">${esc(p.author)}</td>
+            <td><div class="post-title-cell" title="${esc(p.title)}">${esc(p.title)}</div>
+                <div style="font-size:11px;color:#bbb;margin-top:2px;">${formatTime(p.timestamp)} · ID: <code style="font-size:10px;">${p.id}</code></div></td>
+            <td style="text-align:center;">${p.replies.length}</td>
+            <td>
+                ${p.isAdmin ? '<span class="tag tag-admin">Admin</span> ' : ''}
+                ${p.pinned  ? '<span class="tag tag-pinned">Pinned</span> ' : ''}
+                ${p.removed ? '<span class="tag tag-removed">Removed</span>' : '<span class="tag tag-ok">Active</span>'}
+            </td>
+            <td>
+                <div class="action-row">
+                    <button class="tbl-btn reply-tbl" onclick="openReplyModal('${p.id}','${esc(p.title)}')">? Reply</button>
+                    <button class="tbl-btn del" onclick="quickDelete('${p.id}')">? Delete</button>
+                </div>
+            </td>
+        </tr>`).join('')}
+        </tbody>
+    </table>`;
+}
+
+function renderRecent() {
+    const recent = [...posts].sort((a,b) => b.timestamp - a.timestamp).slice(0, 5);
+    const el = document.getElementById('overview-recent');
+    if (!recent.length) { el.innerHTML = '<div style="color:var(--muted);font-size:13px;">No posts yet.</div>'; return; }
+    el.innerHTML = recent.map(p => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+            <div>
+                <div style="font-weight:600;font-size:13px;">${esc(p.title)}</div>
+                <div style="font-size:11px;color:var(--muted);margin-top:2px;">${esc(p.author)} · ${formatTime(p.timestamp)} · ${p.replies.length} repl${p.replies.length>1?'ies':'y'}</div>
+            </div>
+            <div style="display:flex;gap:6px;">
+                ${p.isAdmin ? '<span class="tag tag-admin">Admin</span>' : ''}
+                ${p.removed ? '<span class="tag tag-removed">Removed</span>' : ''}
+            </div>
+        </div>
+    `).join('');
+}
+
+/* -- REPLY MODAL -- */
+function openReplyModal(postId, postTitle) {
+    replyTargetId = postId;
+    document.getElementById('reply-modal-sub').textContent = 'Replying to: "' + postTitle + '"';
+    document.getElementById('reply-modal-body').value = '';
+    document.getElementById('reply-modal').classList.add('open');
+}
+function closeReplyModal() {
+    document.getElementById('reply-modal').classList.remove('open');
+    replyTargetId = null;
+}
+async function submitReplyModal() {
+    const body = document.getElementById('reply-modal-body').value.trim();
+    if (!body) { toast('Reply cannot be empty', 'err'); return; }
+    const post = posts.find(p => p.id === replyTargetId);
+    if (!post) { toast('Post not found', 'err'); return; }
+    post.replies.push({ author:'Infynix Team', body, timestamp:Date.now(), upvotes:0, downvotes:0, removed:false, isAdmin:true });
+    const ok = await savePosts();
+    if (ok) { toast('Reply posted ?', 'ok'); closeReplyModal(); updateStats(); renderTable(); renderRecent(); }
+    else toast('Save error', 'err');
+}
+
+/* -- ADMIN POST -- */
+async function adminPost() {
+    const title  = document.getElementById('np-title').value.trim();
+    const body   = document.getElementById('np-body').value.trim();
+    const pinned = document.getElementById('np-pinned').checked;
+    if (!title || !body) { toast('Title and message are required', 'err'); return; }
+    posts.unshift({
+        id: 'admin-' + Date.now().toString(36),
+        author: 'Infynix Team', title, body,
+        timestamp: Date.now(), upvotes:0, downvotes:0,
+        pinned, removed:false, replies:[], isAdmin:true
+    });
+    const ok = await savePosts();
+    if (ok) {
+        toast('Post published ?', 'ok');
+        document.getElementById('np-title').value = '';
+        document.getElementById('np-body').value  = '';
+        document.getElementById('np-pinned').checked = false;
+        updateStats(); renderTable(); renderRecent();
+    } else toast('Save error', 'err');
+}
+
+/* -- DELETE -- */
+async function quickDelete(postId) {
+    if (!confirm('Delete this post and all its replies?')) return;
+    posts = posts.filter(p => p.id !== postId);
+    const ok = await savePosts();
+    if (ok) { toast('Deleted ?', 'ok'); updateStats(); renderTable(); renderRecent(); }
+    else toast('Error', 'err');
+}
+
+/* -- DANGER ZONE -- */
+function confirmAction(action) {
+    pendingAction = action;
+    const box = document.getElementById('confirm-box');
+    const msg = document.getElementById('confirm-msg');
+    const labels = {
+        'clear-users': 'Delete all user posts and replies (keeps pinned)?',
+        'del-post':    'Delete this post and all its replies?',
+        'del-replies': 'Clear all replies of this post?',
+        'wipe':        'WIPE THE ENTIRE FORUM? This cannot be undone.',
+    };
+    msg.textContent = labels[action] || 'Are you sure?';
+    box.classList.add('show');
+}
+function cancelConfirm() {
+    document.getElementById('confirm-box').classList.remove('show');
+    pendingAction = null;
+}
+async function executeAction() {
+    if (!pendingAction) return;
+    let ok = false;
+    if (pendingAction === 'clear-users') {
+        posts = posts.filter(p => p.pinned);
+        posts.forEach(p => { p.replies=[]; p.removed=false; p.removedReason=undefined; });
+        ok = await savePosts();
+        if (ok) toast('User posts deleted ?', 'ok');
+    } else if (pendingAction === 'del-post') {
+        const id = document.getElementById('del-post-id').value.trim();
+        if (!id) { toast('Enter a post ID', 'err'); return; }
+        const before = posts.length;
+        posts = posts.filter(p => p.id !== id);
+        if (posts.length === before) { toast('Post not found', 'err'); return; }
+        ok = await savePosts();
+        if (ok) toast('Post deleted ?', 'ok');
+    } else if (pendingAction === 'del-replies') {
+        const id = document.getElementById('del-replies-id').value.trim();
+        if (!id) { toast('Enter a post ID', 'err'); return; }
+        const post = posts.find(p => p.id === id);
+        if (!post) { toast('Post not found', 'err'); return; }
+        post.replies = []; post.removed = false; post.removedReason = undefined;
+        ok = await savePosts();
+        if (ok) toast('Replies deleted ?', 'ok');
+    } else if (pendingAction === 'wipe') {
+        posts = [];
+        ok = await savePosts();
+        if (ok) toast('Forum wiped ?', 'ok');
+    }
+    cancelConfirm();
+    if (ok) { updateStats(); renderTable(); renderRecent(); }
+}
+
+/* -- NAV -- */
+function showSection(name) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('section-' + name).classList.add('active');
+    document.getElementById('nav-' + name).classList.add('active');
+}
+
+/* -- UTILS -- */
+function formatTime(ts) {
+    const d = Date.now() - ts;
+    if (d < 60000)    return 'just now';
+    if (d < 3600000)  return Math.floor(d/60000) + 'm ago';
+    if (d < 86400000) return Math.floor(d/3600000) + 'h ago';
+    return Math.floor(d/86400000) + 'd ago';
+}
+function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function toast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = type === 'err' ? 'err' : type === 'ok' ? 'ok' : '';
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* Close modal on overlay click */
+document.getElementById('reply-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeReplyModal();
+});
+
+loadPosts();
+</script>
+</body>
+</html>

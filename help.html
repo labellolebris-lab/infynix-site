@@ -1,0 +1,941 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+(function(){
+  var ua = window.navigator.userAgent;
+  var trident = ua.indexOf("Trident/");
+  if (trident > -1) {
+    var rv = ua.indexOf("rv:");
+    if (rv === -1) {
+      var tridentVer = parseInt(ua.substring(trident + 8, ua.indexOf(".", trident)), 10);
+      if (tridentVer <= 6) { window.location.replace("/509"); return; }
+    }
+  }
+  var msie = ua.indexOf("MSIE ");
+  if (msie > -1) {
+    var v = parseInt(ua.substring(msie + 5, ua.indexOf(".", msie)), 10);
+    if (v <= 10) { window.location.replace("/509"); }
+  }
+})();
+</script>
+<meta charset="UTF-8">
+<title>HelpCenter</title>
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+    --bg:#ffffff; --text:#1d1d1f; --accent:#0071e3;
+    --border:#d2d2d7; --gray:#f5f5f7;
+    --danger:#ff3b30; --green:#34c759;
+}
+* { margin:0; padding:0; box-sizing:border-box; border-radius:0 !important; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased; }
+body { background:rgb(248,248,248); color:var(--text); overflow-x:hidden; min-height:100vh; }
+
+/* -- NAVBAR (identique à index) -- */
+nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 52px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 10000;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+}
+.nav-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 800;
+    font-size: 16px;
+}
+.nav-logo-small { height: 24px; width: auto; }
+nav a {
+    text-decoration: none;
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 400;
+    opacity: 0.8;
+    position: relative;
+    padding: 5px 0;
+    margin: 0 15px;
+    transition: opacity 0.3s;
+}
+nav a:hover { opacity: 1; }
+nav a::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 1.7px;
+    bottom: 0;
+    left: 0;
+    background-color: var(--text);
+    transform: scaleX(0);
+    transform-origin: bottom right;
+    transition: transform 0.25s ease-out;
+}
+nav a:hover::after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
+}
+/* lien actif Help */
+nav a.nav-active {
+    opacity: 1;
+    font-weight: 600;
+    color: var(--accent);
+}
+nav a.nav-active::after { display: none; }
+
+/* -- PAGE BODY -- */
+.page-wrap { padding-left: 40px; padding-top: 72px; }
+
+/* -- HERO BAR -- */
+.github-bar {
+    background:#1d1d1f; color:#fff;
+    padding:40px; margin-left:-40px;
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:0;
+}
+.github-bar h2 { color:#fff; margin-bottom:5px; font-size:38px; }
+.github-bar p  { color:rgba(255,255,255,0.7); }
+.github-bar a  { color:#fff; opacity:0.8; text-decoration:none; font-family:inherit; font-size:100%; }
+.github-btn {
+    background:white; color:black;
+    padding:14px 30px; text-decoration:none;
+    font-weight:600; font-size:17px;
+    display:inline-block;
+}
+
+/* -- MAIN -- */
+#main-content {
+    max-width:1000px;
+    padding:60px 0 60px 35px;
+}
+h1 { font-size:64px; font-weight:700; letter-spacing:-3px; margin:20px 0 10px; }
+.page-subtitle { font-size:18px; color:#86868b; margin-bottom:50px; }
+
+/* -- SEARCH -- */
+.search-wrap { margin-bottom:50px; position:relative; }
+.search-wrap input {
+    width:100%; padding:22px 24px;
+    font-size:18px; border:2px solid var(--border);
+    outline:none; background:#fff;
+    transition:border-color 0.2s;
+    font-family:inherit;
+}
+.search-wrap input:focus { border-color:var(--accent); }
+.search-wrap label {
+    position:absolute; right:20px; top:50%;
+    transform:translateY(-50%);
+    font-size:12px; font-weight:700;
+    text-transform:uppercase; letter-spacing:1.5px;
+    color:#bbb;
+}
+.search-results {
+    background:#fff; border:1px solid var(--border);
+    border-top:none; display:none;
+}
+.search-result-item {
+    padding:14px 24px; border-bottom:1px solid var(--gray);
+    cursor:pointer; transition:background 0.12s;
+    font-size:14px;
+}
+.search-result-item:last-child { border-bottom:none; }
+.search-result-item:hover { background:var(--gray); }
+.search-result-item strong { display:block; font-size:15px; margin-bottom:2px; }
+.search-result-item span   { color:#86868b; }
+
+/* -- CATEGORY GRID -- */
+.section-label {
+    font-size:11px; text-transform:uppercase;
+    letter-spacing:2px; font-weight:700;
+    color:#86868b; margin-bottom:16px;
+}
+.help-grid {
+    display:grid; grid-template-columns:repeat(2,1fr);
+    gap:16px; margin-bottom:50px;
+}
+.help-card {
+    border:1px solid var(--border); padding:32px;
+    background:#fff; cursor:pointer;
+    transition:border-color 0.2s, background 0.2s;
+    text-decoration:none; color:inherit; display:block;
+}
+.help-card:hover { border-color:#1d1d1f; background:#fafafa; }
+.help-card-icon { margin-bottom:14px; display:flex; }
+.help-card-icon svg { width:24px; height:24px; color:#1d1d1f; }
+.help-card h3 {
+    font-size:17px; font-weight:700;
+    margin-bottom:8px; letter-spacing:-0.3px;
+}
+.help-card p { color:#86868b; line-height:1.6; font-size:14px; }
+.help-card-count {
+    margin-top:16px; font-size:12px;
+    font-weight:700; color:#bbb;
+    text-transform:uppercase; letter-spacing:1px;
+}
+
+/* -- ARTICLES SECTION -- */
+.articles-section { margin-bottom:50px; display:none; animation:fadeIn 0.2s ease; }
+.articles-back {
+    color:var(--accent); text-decoration:none;
+    font-size:14px; font-weight:500;
+    display:inline-flex; align-items:center; gap:5px;
+    margin-bottom:24px; cursor:pointer; background:none; border:none;
+}
+.articles-back:hover { text-decoration:underline; }
+.articles-title { font-size:32px; font-weight:700; letter-spacing:-1.5px; margin-bottom:24px; }
+
+/* -- ACCORDION -- */
+.accordion-list { border:1px solid var(--border); background:#fff; }
+.accordion-item { border-bottom:1px solid var(--border); }
+.accordion-item:last-child { border-bottom:none; }
+.accordion-trigger {
+    width:100%; text-align:left;
+    padding:20px 24px; background:none; border:none;
+    font-size:15px; font-weight:600; cursor:pointer;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:16px; font-family:inherit;
+    color:var(--text); transition:background 0.12s;
+}
+.accordion-trigger:hover { background:var(--gray); }
+.accordion-trigger svg {
+    width:16px; height:16px; flex-shrink:0;
+    color:#86868b; transition:transform 0.2s;
+}
+.accordion-trigger.open svg { transform:rotate(180deg); }
+.accordion-body {
+    padding:0 24px; max-height:0;
+    overflow:hidden; transition:max-height 0.3s ease, padding 0.3s ease;
+    font-size:14px; line-height:1.8; color:#444;
+}
+.accordion-body.open { max-height:600px; padding:0 24px 22px; }
+
+.steps { margin:12px 0 0; display:flex; flex-direction:column; gap:10px; }
+.step {
+    display:flex; gap:14px; align-items:flex-start;
+    background:var(--gray); padding:14px 16px;
+}
+.step-num {
+    background:#1d1d1f; color:#fff;
+    font-size:11px; font-weight:800;
+    width:22px; height:22px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+}
+.step-text { font-size:13px; line-height:1.7; color:#444; }
+.step-text strong { color:#1d1d1f; }
+
+.note {
+    background:#f0f7ff; border-left:3px solid var(--accent);
+    padding:12px 16px; margin-top:12px;
+    font-size:13px; line-height:1.7; color:#333;
+}
+.note strong { color:var(--accent); }
+.warn-note {
+    background:#fff8f0; border-left:3px solid #ff9500;
+    padding:12px 16px; margin-top:12px;
+    font-size:13px; line-height:1.7; color:#333;
+}
+.warn-note strong { color:#c65c00; }
+
+/* -- POPULAR QUESTIONS -- */
+.popular-list { border:1px solid var(--border); background:#fff; margin-bottom:50px; }
+.popular-item {
+    border-bottom:1px solid var(--border);
+    padding:18px 24px; cursor:pointer;
+    display:flex; align-items:center; justify-content:space-between;
+    transition:background 0.12s; font-size:15px;
+}
+.popular-item:last-child { border-bottom:none; }
+.popular-item:hover { background:var(--gray); }
+.popular-item svg { width:14px; height:14px; color:#bbb; flex-shrink:0; }
+
+/* -- FORUM CTA -- */
+.forum-cta {
+    background:#1d1d1f; color:#fff;
+    padding:40px; margin-top:20px;
+    display:flex; align-items:center; justify-content:space-between; gap:20px;
+}
+.forum-cta h2 { font-size:24px; font-weight:700; margin-bottom:6px; }
+.forum-cta p  { color:rgba(255,255,255,0.6); font-size:14px; }
+.forum-cta-btn {
+    background:#fff; color:#1d1d1f;
+    padding:13px 26px; text-decoration:none;
+    font-weight:700; font-size:14px; flex-shrink:0;
+    transition:opacity 0.2s; display:inline-block;
+}
+.forum-cta-btn:hover { opacity:0.88; }
+
+/* -- TOAST -- */
+#toast {
+    position:fixed; bottom:28px; left:50%;
+    transform:translateX(-50%) translateY(70px);
+    background:#1d1d1f; color:#fff;
+    padding:11px 22px; font-size:13px; font-weight:600;
+    transition:transform 0.28s cubic-bezier(0.34,1.56,0.64,1);
+    z-index:9999; pointer-events:none; white-space:nowrap;
+}
+#toast.show { transform:translateX(-50%) translateY(0); }
+
+@keyframes fadeIn { from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)} }
+@media(max-width:640px){ h1{font-size:40px;} .help-grid{grid-template-columns:1fr;} .forum-cta{flex-direction:column;} }
+</style>
+</head>
+<body>
+
+<!-- -- NAVBAR IDENTIQUE À INDEX -- -->
+<nav>
+    <div class="nav-container">
+        <a href="index.html" class="nav-brand">
+            <img src="logo.jpg" alt="" class="nav-logo-small">
+        </a>
+        <div style="display:flex; align-items:center;">
+            <a href="forums.html">Forums</a>
+            <a href="contact.html">Contact</a>
+            <a href="tuto.html">Tutorials</a>
+            <a href="support.html">Support</a>
+            <a href="about.html" class="nav-active">About</a>
+        </div>
+    </div>
+</nav>
+
+<div class="page-wrap">
+<section style="background:#fcfcfc; margin-left:-40px; padding-left:40px;">
+<div id="main-content">
+    <h1>Help Center</h1>
+    <p class="page-subtitle">What do you need help with?</p>
+
+    <!-- SEARCH -->
+    <div class="search-wrap">
+        <input type="text" id="searchInput" placeholder="Search for an article, app name, error..." oninput="handleSearch(this.value)">
+        <label>Search</label>
+        <div class="search-results" id="searchResults"></div>
+    </div>
+
+    <!-- CATEGORY GRID -->
+    <div class="section-label home-el">Browse by category</div>
+    <div class="help-grid home-el" id="categoryGrid">
+        <a class="help-card" onclick="showCategory(event,'pencs')" href="#">
+            <div class="help-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+            <h3>PenCS 2X</h3>
+            <p>Installation, certificate setup, dependencies, and troubleshooting.</p>
+            <div class="help-card-count">5 articles</div>
+        </a>
+        <a class="help-card" onclick="showCategory(event,'altos')" href="#">
+            <div class="help-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg></div>
+            <h3>Altos</h3>
+            <p>Pricing, features, Lite vs Ultimate and account questions.</p>
+            <div class="help-card-count">2 articles</div>
+        </a>
+        <a class="help-card" onclick="showCategory(event,'taskschool')" href="#">
+            <div class="help-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div>
+            <h3>TaskSchool</h3>
+            <p>Release dates, beta access and feature roadmap.</p>
+            <div class="help-card-count">1 article</div>
+        </a>
+        <a class="help-card" onclick="showCategory(event,'general')" href="#">
+            <div class="help-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg></div>
+            <h3>General / Other</h3>
+            <p>Account help, beta program, website and contact info.</p>
+            <div class="help-card-count">3 articles</div>
+        </a>
+    </div>
+
+    <!-- POPULAR QUICK-ACCESS -->
+    <div class="section-label home-el">Popular questions</div>
+    <div class="popular-list" id="popularList">
+        <div class="popular-item" onclick="openArticle('pencs-install','pencs')">
+            <span>How do I install PenCS 2X?</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="popular-item" onclick="openArticle('pencs-cert','pencs')">
+            <span>Why does Windows block the certificate?</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="popular-item" onclick="openArticle('altos-price','altos')">
+            <span>How much does Altos Ultimate cost?</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="popular-item" onclick="openArticle('uwp-deps','pencs')">
+            <span>Which architecture should I download? (x86 / x64 / ARM)</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="popular-item" onclick="openArticle('taskschool-release','taskschool')">
+            <span>When does TaskSchool 2.0 release?</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+    </div>
+
+    <!-- ARTICLES VIEW (hidden by default) -->
+    <div class="articles-section" id="articlesSection">
+        <button class="articles-back" onclick="backToCategories()">
+            ? Back to categories
+        </button>
+        <div class="articles-title" id="articlesTitle"></div>
+        <div class="accordion-list" id="accordionList"></div>
+    </div>
+
+    <!-- FORUM CTA -->
+    <div class="forum-cta">
+        <div>
+            <h2>Still not finding your answer?</h2>
+            <p>Ask the community or contact the team directly on the Forum.</p>
+        </div>
+        <a href="Forums.html" class="forum-cta-btn">Go to Forum ?</a>
+    </div>
+</div>
+</section>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const CATEGORIES = {
+    pencs: {
+        title: 'PenCS 2X',
+        description: 'Installation, certificate setup, dependencies, and troubleshooting.',
+        articles: [
+            {
+                id: 'pencs-install',
+                q: 'How do I install PenCS 2X?',
+                tags: ['install','pencs','setup','download'],
+                body: `
+                    <div class="steps">
+                        <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Download the package</strong> from the Store Apps (UWP) page. You'll get a .zip with the .appx file, dependencies and a .cer certificate.</div></div>
+                        <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Install the certificate</strong> — double-click the .cer file, then click <em>Install Certificate</em>.</div></div>
+                        <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Choose Local Machine</strong> when asked where to install.</div></div>
+                        <div class="step"><div class="step-num">4</div><div class="step-text"><strong>Place all certificates</strong> in the following store — scroll down and select <em>Trusted People</em>, then confirm.</div></div>
+                        <div class="step"><div class="step-num">5</div><div class="step-text"><strong>Install the right dependency</strong> for your processor: x86, x64 or ARM (see the article below).</div></div>
+                        <div class="step"><div class="step-num">6</div><div class="step-text"><strong>Double-click the .appx</strong> file and click Install — PenCS 2X is now on your PC!</div></div>
+                    </div>
+                    <div class="note"><strong>Tip:</strong> If Windows shows a SmartScreen warning, click <em>More info</em> ? <em>Run anyway</em>. This is expected for sideloaded UWP apps.</div>
+                `
+            },
+            {
+                id: 'pencs-cert',
+                q: 'Why does Windows block the certificate / show a security warning?',
+                tags: ['certificate','security','blocked','warning','smartscreen'],
+                body: `
+                    <p>PenCS 2X is a sideloaded UWP app — it's not distributed through the Microsoft Store, so Windows requires a manual certificate install to trust it.</p>
+                    <div class="warn-note"><strong>This is normal.</strong> The certificate comes from infynix directly and is safe to install.</div>
+                    <div class="steps">
+                        <div class="step"><div class="step-num">1</div><div class="step-text">Double-click the <strong>.cer</strong> file in the downloaded package.</div></div>
+                        <div class="step"><div class="step-num">2</div><div class="step-text">Click <strong>Install Certificate</strong> ? <strong>Local Machine</strong>.</div></div>
+                        <div class="step"><div class="step-num">3</div><div class="step-text">Select <strong>Place all certificates in the following store</strong> ? browse to <strong>Trusted People</strong>.</div></div>
+                        <div class="step"><div class="step-num">4</div><div class="step-text">Click <strong>Finish</strong>. You can now install the .appx without warnings.</div></div>
+                    </div>
+                `
+            },
+            {
+                id: 'uwp-deps',
+                q: 'Which architecture dependency should I download? (x86 / x64 / ARM)',
+                tags: ['x86','x64','arm','architecture','dependency','processor'],
+                body: `
+                    <p>Not sure which one to pick? Press <strong>Win + Pause</strong> or go to <em>Settings ? System ? About</em> and check <em>System type</em>.</p>
+                    <div class="steps">
+                        <div class="step"><div class="step-num">1</div><div class="step-text"><strong>x64</strong> — 64-bit PC. Most modern desktops and laptops. Download the x64 dependency.</div></div>
+                        <div class="step"><div class="step-num">2</div><div class="step-text"><strong>x86</strong> — 32-bit PC. Older machines only. Download the x86 dependency.</div></div>
+                        <div class="step"><div class="step-num">3</div><div class="step-text"><strong>ARM</strong> — Surface Pro X, Snapdragon-based laptops. Download the ARM dependency.</div></div>
+                    </div>
+                    <div class="note"><strong>Not sure?</strong> Go with x64 — it covers 95%+ of users. Installing the wrong one will just show an error, nothing breaks.</div>
+                `
+            },
+            {
+                id: 'pencs-error',
+                q: 'I get an error when installing — what should I do?',
+                tags: ['error','fail','install','problem','broken'],
+                body: `
+                    <p>Most installation errors have a simple fix:</p>
+                    <div class="steps">
+                        <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Certificate not trusted</strong> — did you complete the certificate step before installing the .appx? Go back and install the .cer first.</div></div>
+                        <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Wrong dependency architecture</strong> — uninstall the dependency you installed and try a different one (x86, x64 or ARM).</div></div>
+                        <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Dependency already installed</strong> — if you see "a newer version is already installed", that's fine — skip it and go straight to the .appx.</div></div>
+                    </div>
+                    <div class="warn-note"><strong>Still stuck?</strong> Post on the <a href="Forums.html" style="color:#c65c00;">Community Forum</a> with your error message and we'll help.</div>
+                `
+            },
+            {
+                id: 'pencs-beta',
+                q: 'How do I access the PenCS beta?',
+                tags: ['beta','pencs','early access','code','test'],
+                body: `
+                    <p>PenCS beta access works via a <strong>code system</strong>. Codes are distributed by infynix admins only — there is no open signup.</p>
+                    <div class="steps">
+                        <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Get a beta code</strong> — watch the Forum and the BETA page. Codes are posted by the Infynix Team when a new beta is available.</div></div>
+                        <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Enter your code</strong> on the <a href="BETA.html" style="color:var(--accent);">BETA page</a> to unlock the download.</div></div>
+                        <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Install as usual</strong> — follow the same steps as the standard PenCS 2X installation (certificate + dependency + .appx).</div></div>
+                    </div>
+                    <div class="warn-note"><strong>No code?</strong> You can't access the beta without one. Codes are not transferable — don't share yours.</div>
+                `
+            }
+        ]
+    },
+    altos: {
+        title: 'Altos',
+        description: 'Pricing, features, Lite vs Ultimate and account questions.',
+        articles: [
+            {
+                id: 'altos-price',
+                q: 'How much does Altos cost?',
+                tags: ['price','cost','money','buy','ultimate','lite','free'],
+                body: `
+                    <div class="steps">
+                        <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Altos Lite</strong> — free forever. Includes the core features.</div></div>
+                        <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Altos Ultimate</strong> — one-time purchase at <strong>$5.99</strong>. Unlocks all premium features.</div></div>
+                    </div>
+                    <div class="note"><strong>Tip:</strong> Not sure which to get? Start with Lite — you can upgrade to Ultimate at any time.</div>
+                `
+            },
+            {
+                id: 'altos-diff',
+                q: 'What is the difference between Altos Lite and Ultimate?',
+                tags: ['lite','ultimate','difference','features','compare'],
+                body: `
+                    <p>Altos Lite gives you access to the core functionality at no cost. Altos Ultimate unlocks the full feature set with a one-time payment of <strong>$5.99</strong>.</p>
+                    <div class="note"><strong>More details</strong> on the features page — check the Store Apps (UWP) section of the site.</div>
+                `
+            }
+        ]
+    },
+    taskschool: {
+        title: 'TaskSchool',
+        description: 'Release dates and feature info.',
+        articles: [
+            {
+                id: 'taskschool-release',
+                q: 'When does TaskSchool 2.0 release?',
+                tags: ['taskschool','release','date','2.0','launch'],
+                body: `
+                    <p><strong>TaskSchool 2.0</strong> releases on <strong>March 4, 2026 at 19:00</strong>.</p>
+                    <div class="note"><strong>Note:</strong> There is no beta program for TaskSchool. The app will be available publicly on release day.</div>
+                `
+            }
+        ]
+    },
+    general: {
+        title: 'General / Other',
+        description: 'Account help, beta program, website and contact info.',
+        articles: [
+            {
+                id: 'general-contact',
+                q: 'How do I contact the infynix team?',
+                tags: ['contact','email','support','help','team'],
+                body: `
+                    <p>You can reach the team in two ways:</p>
+                    <div class="steps">
+                        <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Community Forum</strong> — post your question and the team or community will reply. <a href="Forums.html" style="color:var(--accent);">Open Forum ?</a></div></div>
+                        <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Direct email</strong> — use the contact form at the bottom of the Forum page to send an email to the team.</div></div>
+                    </div>
+                `
+            },
+            {
+                id: 'general-beta',
+                q: 'What is the BETA program?',
+                tags: ['beta','program','test','early'],
+                body: `
+                    <p>The infynix BETA program lets you test upcoming features and apps before the public release. Head to the <a href="BETA.html" style="color:var(--accent);">BETA page</a> for the latest builds and instructions.</p>
+                `
+            },
+            {
+                id: 'general-website',
+                q: 'The website was recently updated — where is the old version?',
+                tags: ['old','version','website','update','redesign'],
+                body: `
+                    <p>infynixSkyMarket was recently redesigned. If you need the old version:</p>
+                    <div class="steps">
+                        <div class="step"><div class="step-num">1</div><div class="step-text"><a href="/ansuitecs" style="color:var(--accent);">Old version</a> is still accessible at the link above.</div></div>
+                        <div class="step"><div class="step-num">2</div><div class="step-text">The main infynix website is at <a href="/redirection" style="color:var(--accent);">this link</a>.</div></div>
+                    </div>
+                `
+            }
+        ]
+    }
+};
+
+const ALL_ARTICLES = Object.entries(CATEGORIES).flatMap(([cat, data]) =>
+    data.articles.map(a => ({ ...a, category: cat, categoryTitle: data.title }))
+);
+
+function handleSearch(val) {
+    const q = val.toLowerCase().trim();
+    const box = document.getElementById('searchResults');
+    if (q.length < 2) { box.style.display='none'; return; }
+    const results = ALL_ARTICLES.filter(a =>
+        a.q.toLowerCase().includes(q) ||
+        a.tags.some(t => t.includes(q))
+    );
+    if (!results.length) {
+        box.innerHTML = '<div class="search-result-item"><strong>No results found</strong><span>Try different keywords, or browse categories below.</span></div>';
+        box.style.display = 'block'; return;
+    }
+    box.innerHTML = results.map(r => `
+        <div class="search-result-item" onclick="openArticle('${r.id}','${r.category}')">
+            <strong>${r.q}</strong>
+            <span>${r.categoryTitle}</span>
+        </div>
+    `).join('');
+    box.style.display = 'block';
+}
+
+document.addEventListener('click', e => {
+    if (!e.target.closest('.search-wrap')) {
+        document.getElementById('searchResults').style.display = 'none';
+    }
+});
+
+function showCategory(evt, cat) {
+    evt.preventDefault();
+    const data = CATEGORIES[cat];
+    if (!data) return;
+    document.querySelectorAll('.home-el').forEach(el => el.style.display = 'none');
+    document.querySelector('.page-subtitle').style.display = 'none';
+    document.getElementById('articlesTitle').textContent = data.title;
+    renderAccordion(data.articles);
+    document.getElementById('articlesSection').style.display = 'block';
+    document.getElementById('searchResults').style.display = 'none';
+    window.scrollTo(0, 0);
+}
+
+function openArticle(articleId, cat) {
+    document.getElementById('searchResults').style.display = 'none';
+    document.getElementById('searchInput').value = '';
+    const data = CATEGORIES[cat];
+    if (!data) return;
+    document.querySelectorAll('.home-el').forEach(el => el.style.display = 'none');
+    document.querySelector('.page-subtitle').style.display = 'none';
+    document.getElementById('articlesTitle').textContent = data.title;
+    renderAccordion(data.articles);
+    document.getElementById('articlesSection').style.display = 'block';
+    setTimeout(() => {
+        const trigger = document.getElementById('trigger-' + articleId);
+        if (trigger && !trigger.classList.contains('open')) trigger.click();
+    }, 80);
+    window.scrollTo(0, 0);
+}
+
+function renderAccordion(articles) {
+    const list = document.getElementById('accordionList');
+    list.innerHTML = articles.map(a => `
+        <div class="accordion-item">
+            <button class="accordion-trigger" id="trigger-${a.id}" onclick="toggleAccordion('${a.id}')">
+                <span>${a.q}</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion-body" id="body-${a.id}">
+                ${a.body}
+            </div>
+        </div>
+    `).join('');
+}
+
+function toggleAccordion(id) {
+    const body = document.getElementById('body-'+id);
+    const trigger = document.getElementById('trigger-'+id);
+    body.classList.toggle('open');
+    trigger.classList.toggle('open');
+}
+
+function backToCategories() {
+    document.getElementById('articlesSection').style.display = 'none';
+    document.querySelectorAll('.home-el').forEach(el => el.style.display = '');
+    document.querySelector('.page-subtitle').style.display = 'block';
+    document.getElementById('categoryGrid').style.display = 'grid';
+}
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// GITHUB CONFIG
+const GH_TOKEN = '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';
+const GH_OWNER = 'labellolebris-lab';
+const GH_REPO  = 'infynix-site';
+const GH_FILE  = 'posts.json';
+const GH_API   = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}`;
+
+let onlineArticles = [];
+let fileSha = null;
+
+async function loadOnlineArticles() {
+    try {
+        const res = await fetch(`${GH_API}?v=${Date.now()}`, {
+            headers: { 'Authorization': `token ${GH_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
+        });
+        if (res.ok) {
+            const data = await res.json();
+            fileSha = data.sha;
+            const str = decodeURIComponent(escape(atob(data.content.replace(/\n/g,''))));
+            onlineArticles = JSON.parse(str);
+            localStorage.setItem('hc_online_v1', str);
+        } else { throw new Error('GitHub unreachable'); }
+    } catch(e) {
+        const local = localStorage.getItem('hc_online_v1');
+        if (local) onlineArticles = JSON.parse(local);
+    }
+    injectOnlineArticles();
+}
+
+async function saveOnlineArticles() {
+    const check = await fetch(`${GH_API}?v=${Date.now()}`, {
+        headers: { 'Authorization': `token ${GH_TOKEN}` }
+    });
+    if (!check.ok) { showToast('GitHub connection failed'); return false; }
+    const remote = await check.json();
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(onlineArticles, null, 2))));
+    const result = await fetch(GH_API, {
+        method: 'PUT',
+        headers: { 'Authorization': `token ${GH_TOKEN}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: 'HelpCenter update', content, sha: remote.sha })
+    });
+    if (result.ok) { fileSha = (await result.json()).content.sha; return true; }
+    showToast('GitHub save failed'); return false;
+}
+
+function injectOnlineArticles() {
+    if (!onlineArticles.length) return;
+    onlineArticles.forEach(a => {
+        if (!CATEGORIES[a.category]) {
+            CATEGORIES[a.category] = { title: a.categoryTitle, articles: [] };
+        }
+        const exists = CATEGORIES[a.category].articles.find(x => x.id === a.id);
+        if (!exists) CATEGORIES[a.category].articles.push(a);
+    });
+    rebuildCategoryGrid();
+}
+
+function rebuildCategoryGrid() {
+    const grid = document.getElementById('categoryGrid');
+    const svgIcons = {
+        pencs: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`,
+        altos: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>`,
+        taskschool: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>`,
+        general: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>`,
+    };
+    const defaultIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`;
+    grid.innerHTML = Object.entries(CATEGORIES).map(([key, cat]) => `
+        <a class="help-card" onclick="showCategory(event,'${key}')" href="#">
+            <div class="help-card-icon">${svgIcons[key] || defaultIcon}</div>
+            <h3>${cat.title}</h3>
+            <p>${cat.description || 'Browse articles in this category.'}</p>
+            <div class="help-card-count">${cat.articles.length} article${cat.articles.length !== 1 ? 's' : ''}</div>
+        </a>
+    `).join('');
+}
+
+// MODAL STYLES
+const modalStyle = document.createElement('style');
+modalStyle.textContent = `
+#hc-modal-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,0.55);
+    z-index:10001; display:flex; align-items:center; justify-content:center;
+    animation:fadeIn 0.15s ease;
+}
+#hc-modal {
+    background:#fff; width:600px; max-width:92vw; max-height:90vh;
+    overflow-y:auto; padding:40px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.2);
+    animation:slideUp 0.2s ease;
+}
+@keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+#hc-modal h2 { font-size:26px; font-weight:700; letter-spacing:-1px; margin-bottom:6px; }
+#hc-modal .modal-sub { font-size:13px; color:#86868b; margin-bottom:28px; }
+.modal-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:#86868b; margin-bottom:6px; display:block; }
+.modal-input { width:100%; padding:12px 14px; border:1px solid var(--border); font-size:14px; font-family:inherit; outline:none; background:#fff; margin-bottom:18px; transition:border-color 0.2s; color:var(--text); }
+.modal-input:focus { border-color:#1d1d1f; }
+.modal-textarea { height:140px; resize:vertical; }
+.modal-hint { font-size:12px; color:#bbb; margin-top:-14px; margin-bottom:18px; line-height:1.5; }
+.modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:8px; }
+.modal-btn-cancel { background:none; border:1px solid var(--border); padding:11px 22px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; color:#555; transition:background 0.15s; }
+.modal-btn-cancel:hover { background:var(--gray); }
+.modal-btn-save { background:#1d1d1f; color:#fff; border:none; padding:11px 22px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; transition:background 0.2s; display:inline-flex; align-items:center; gap:6px; }
+.modal-btn-save:hover { background:#333; }
+.modal-btn-save:disabled { background:#999; cursor:not-allowed; }
+.modal-saving { font-size:12px; color:#86868b; margin-top:10px; text-align:right; display:none; }
+.modal-section-sep { border:none; border-top:1px solid var(--border); margin:20px 0; }
+.step-builder { display:flex; flex-direction:column; gap:8px; margin-bottom:18px; }
+.step-builder-item { display:flex; gap:8px; align-items:center; }
+.step-builder-item input { flex:1; padding:9px 12px; border:1px solid var(--border); font-size:13px; font-family:inherit; outline:none; }
+.step-builder-item input:focus { border-color:#1d1d1f; }
+.step-builder-item button { background:none; border:1px solid var(--border); width:30px; height:30px; cursor:pointer; font-size:16px; color:#999; flex-shrink:0; transition:color 0.15s; }
+.step-builder-item button:hover { color:var(--danger); border-color:var(--danger); }
+.add-step-btn { background:none; border:1px dashed var(--border); padding:8px; font-size:12px; font-weight:600; color:#86868b; cursor:pointer; width:100%; font-family:inherit; transition:border-color 0.15s; }
+.add-step-btn:hover { border-color:#1d1d1f; color:#1d1d1f; }
+`;
+document.head.appendChild(modalStyle);
+
+window.newarticle = function() {
+    const pwd = prompt('?? Admin password:');
+    if (pwd !== 'CACAPROUT007') { alert('Wrong password.'); return; }
+    openArticleModal();
+};
+
+let stepCount = 0;
+
+function openArticleModal() {
+    closeArticleModal();
+    stepCount = 0;
+    const overlay = document.createElement('div');
+    overlay.id = 'hc-modal-overlay';
+    overlay.innerHTML = `
+        <div id="hc-modal">
+            <h2>New article</h2>
+            <p class="modal-sub">This article will be saved online and appear for all visitors.</p>
+            <label class="modal-label">Category key <span style="font-weight:400;text-transform:none">(existing: pencs, altos, taskschool, general — or type a new one)</span></label>
+            <input class="modal-input" id="ma-cat" placeholder="e.g. pencs" oninput="updateCatTitle()">
+            <label class="modal-label">Category display name</label>
+            <input class="modal-input" id="ma-cat-title" placeholder="e.g. PenCS 2X">
+            <label class="modal-label">Category description</label>
+            <input class="modal-input" id="ma-cat-desc" placeholder="Short description shown on the category card">
+            <hr class="modal-section-sep">
+            <label class="modal-label">Article question / title</label>
+            <input class="modal-input" id="ma-q" placeholder="e.g. How do I reset my settings?">
+            <label class="modal-label">Tags <span style="font-weight:400;text-transform:none">(comma separated)</span></label>
+            <input class="modal-input" id="ma-tags" placeholder="e.g. reset, settings, config">
+            <label class="modal-label">Intro text <span style="font-weight:400;text-transform:none">(optional)</span></label>
+            <input class="modal-input" id="ma-intro" placeholder="Optional short intro sentence">
+            <label class="modal-label">Steps</label>
+            <div class="step-builder" id="step-builder"></div>
+            <button class="add-step-btn" onclick="addStep()">+ Add a step</button>
+            <div style="margin-top:18px"></div>
+            <label class="modal-label">Note box <span style="font-weight:400;text-transform:none">(optional — blue info box)</span></label>
+            <input class="modal-input" id="ma-note" placeholder="e.g. Tip: you can also do this from Settings">
+            <label class="modal-label">Warning box <span style="font-weight:400;text-transform:none">(optional — orange warning box)</span></label>
+            <input class="modal-input" id="ma-warn" placeholder="e.g. Warning: this action cannot be undone">
+            <div class="modal-actions">
+                <button class="modal-btn-cancel" onclick="closeArticleModal()">Cancel</button>
+                <button class="modal-btn-save" id="ma-save-btn" onclick="submitArticle()">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                    Publish
+                </button>
+            </div>
+            <p class="modal-saving" id="ma-saving">Saving to GitHub...</p>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeArticleModal(); });
+    addStep(); addStep();
+}
+
+function updateCatTitle() {
+    const key = document.getElementById('ma-cat').value.trim();
+    const titleEl = document.getElementById('ma-cat-title');
+    const descEl = document.getElementById('ma-cat-desc');
+    if (CATEGORIES[key]) {
+        titleEl.value = CATEGORIES[key].title;
+        descEl.value = CATEGORIES[key].description || '';
+        titleEl.disabled = true; descEl.disabled = true;
+    } else {
+        titleEl.disabled = false; descEl.disabled = false;
+    }
+}
+
+function addStep() {
+    stepCount++;
+    const builder = document.getElementById('step-builder');
+    if (!builder) return;
+    const div = document.createElement('div');
+    div.className = 'step-builder-item';
+    div.id = 'step-' + stepCount;
+    div.innerHTML = `
+        <input placeholder="Step ${stepCount} — describe what to do" id="step-text-${stepCount}">
+        <button onclick="removeStep(${stepCount})" title="Remove">×</button>
+    `;
+    builder.appendChild(div);
+}
+
+function removeStep(n) {
+    const el = document.getElementById('step-' + n);
+    if (el) el.remove();
+}
+
+async function submitArticle() {
+    const cat      = document.getElementById('ma-cat').value.trim().toLowerCase().replace(/\s+/g,'-');
+    const catTitle = document.getElementById('ma-cat-title').value.trim();
+    const catDesc  = document.getElementById('ma-cat-desc').value.trim();
+    const q        = document.getElementById('ma-q').value.trim();
+    const tagsRaw  = document.getElementById('ma-tags').value.trim();
+    const intro    = document.getElementById('ma-intro').value.trim();
+    const note     = document.getElementById('ma-note').value.trim();
+    const warn     = document.getElementById('ma-warn').value.trim();
+
+    if (!cat)      { alert('Please fill in the category key.'); return; }
+    if (!catTitle) { alert('Please fill in the category display name.'); return; }
+    if (!q)        { alert('Please fill in the article question/title.'); return; }
+
+    const steps = [];
+    document.querySelectorAll('.step-builder-item input').forEach((inp) => {
+        if (inp.value.trim()) steps.push(inp.value.trim());
+    });
+
+    let body = '';
+    if (intro) body += `<p>${intro}</p>`;
+    if (steps.length) {
+        body += `<div class="steps">`;
+        steps.forEach((s, i) => {
+            body += `<div class="step"><div class="step-num">${i+1}</div><div class="step-text">${s}</div></div>`;
+        });
+        body += `</div>`;
+    }
+    if (note) body += `<div class="note"><strong>Note:</strong> ${note}</div>`;
+    if (warn) body += `<div class="warn-note"><strong>Warning:</strong> ${warn}</div>`;
+
+    if (!body) { alert('Please add at least one step or some content.'); return; }
+
+    const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim().toLowerCase()).filter(Boolean) : [];
+    const id   = cat + '-' + Date.now().toString(36);
+    const article = { id, category: cat, categoryTitle: catTitle, q, tags, body };
+
+    const btn    = document.getElementById('ma-save-btn');
+    const saving = document.getElementById('ma-saving');
+    btn.disabled = true; btn.textContent = 'Saving...';
+    saving.style.display = 'block';
+
+    await loadOnlineArticles();
+    onlineArticles.push(article);
+
+    if (!CATEGORIES[cat]) {
+        CATEGORIES[cat] = { title: catTitle, description: catDesc, articles: [] };
+    }
+    CATEGORIES[cat].description = catDesc || CATEGORIES[cat].description;
+
+    const ok = await saveOnlineArticles();
+    if (ok) {
+        if (!CATEGORIES[cat]) CATEGORIES[cat] = { title: catTitle, description: catDesc, articles: [] };
+        CATEGORIES[cat].articles.push(article);
+        rebuildCategoryGrid();
+        closeArticleModal();
+        showToast('Article published successfully!');
+    } else {
+        btn.disabled = false; btn.textContent = 'Publish';
+        saving.style.display = 'none';
+    }
+}
+
+function closeArticleModal() {
+    const overlay = document.getElementById('hc-modal-overlay');
+    if (overlay) overlay.remove();
+}
+
+loadOnlineArticles();
+</script>
+</body>
+</html>
